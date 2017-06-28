@@ -1,11 +1,26 @@
 (ns nes.system
-    (:use [nes.cpu]
-          [nes.opcodes]
-          [nes.memory]))
+  (:use [nes.cpu]
+        [nes.opcodes]
+        [nes.memory]))
 
 (defn new-system []
-    { :cpu (new-cpu)
-      :mem (new-memory) })
+  { :acc           0x00
+    :x             0x00
+    :y             0x00
+    :pc            0x00
+    :sp            0x00
+
+    :carry-flag    false
+    :zero-flag     false
+    :overflow-flag false
+    :int-flag      false
+    :dec-flag      false
+    :unused-flag   true
+    :brk-flag      false
+    :sign-flag     false
+
+    :cycles        0
+    :mem          (new-memory) })
 
 (defn execute
   "execute takes a system value and executes the next instruction,

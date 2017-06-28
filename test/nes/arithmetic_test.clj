@@ -2,28 +2,28 @@
     (:require [midje.sweet :refer :all]
               [nes.arithmetic :refer :all]
               [nes.memory :refer :all]
-              [nes.cpu :refer :all]))
+              [nes.system :refer :all]))
 
 (defn perform-sbc
     [acc m carry]
-    (-> (new-cpu)
-        (set-flag :carry carry)
+    (-> (new-system)
+        (assoc :carry-flag carry)
         (assoc :acc acc)
-        (op-sbc m)))
+        (sbc m)))
 
 (defn perform-adc
     [acc m carry]
-    (-> (new-cpu)
-        (set-flag :carry carry)
+    (-> (new-system)
+        (assoc :carry-flag carry)
         (assoc :acc acc)
-        (op-adc m)))
+        (adc m)))
 
 (fact "adc sets the carry flag when sum is greater than 255"
     (-> (perform-adc 200 100 false)
-        (flag-set? :carry)) => true
+        (get :carry-flag)) => true
 
     (-> (perform-adc 100 100 false)
-        (flag-set? :carry)) => false)
+        (get :carry-flag)) => false)
 
 (fact "adc adds sum of ACC + M + Carry"
     (:acc (perform-adc 2 3 false))   => 5
@@ -33,49 +33,48 @@
 
 (fact "adc sets the overflow flag when sum is negative in 2s compliment"
     (-> (perform-adc 0x01 0x01 false)
-        (flag-set? :overflow)) => false
+        (get :overflow-flag)) => false
 
     (-> (perform-adc 0x01 0xFF false)
-        (flag-set? :overflow)) => false
+        (get :overflow-flag)) => false
 
     (-> (perform-adc 0x7F 0x01 false)
-        (flag-set? :overflow)) => true
+        (get :overflow-flag)) => true
 
     (-> (perform-adc 0x80 0xFF false)
-        (flag-set? :overflow)) => true)
+        (get :overflow-flag)) => true)
 
 (fact "adc sets the zero flag when sum is 0, clears when sum is non-0"
     (-> (perform-adc 0x00 0x01 false)
-        (flag-set? :zero)) => false
+        (get :zero-flag)) => false
 
     (-> (perform-adc 0x01 0xFF false)
-        (flag-set? :zero)) => true
+        (get :zero-flag)) => true
 
     (-> (perform-adc 0x00 0x00 false)
-        (flag-set? :zero)) => true)
+        (get :zero-flag)) => true)
 
 (fact "adc sets the negative flag when sum is negative (bit 7 is set)"
     (-> (perform-adc 0x01 0x01 false)
-        (flag-set? :sign)) => false
+        (get :sign-flag)) => false
 
     (-> (perform-adc 0x7F 0x01 false)
-        (flag-set? :sign)) => true
+        (get :sign-flag)) => true
 
     (-> (perform-adc 0xFF 0x01 false)
-        (flag-set? :sign)) => false)
+        (get :sign-flag)) => false)
 
 (fact "dec subtracts 1 from 0x05 located at address 0x20, setting value to 0x04"
-    (let [cpu (new-cpu)
-          mem (assoc (new-memory) 0x20 0x05)]
-          (-> (op-dec cpu mem 0x20)
-              :mem
-              (get 0x20))) => 0x04
+      (-> (new-system)
+          (assoc-in [:mem 0x20] 0x05)
+          (op-dec 0x20)
+          (:mem)
+          (get 0x20)) => 0x04
 
-    (let [cpu (new-cpu)
-          mem (assoc (new-memory) 0x20 0x00)]
-          (-> (op-dec cpu mem 0x20)
-              :mem
-              (get 0x20))) => 0xFF)
+      (-> (new-system)
+          (op-dec 0x20)
+          (:mem)
+          (get 0x20)) => 0xFF)
 
 (fact "change-by-one modifies a value by one and limits results to 0-255"
     (change-by-one dec 0x00) => 0xFF
@@ -92,16 +91,16 @@
 
 (fact "sbc sets the overflow flag when sum is negative in 2s compliment"
     (-> (perform-sbc 0x00 0x01 true)
-        (flag-set? :overflow)) => false
+        (get :overflow-flag)) => false
 
     (-> (perform-sbc 0x80 0x01 true)
-        (flag-set? :overflow)) => true
+        (get :overflow-flag)) => true
 
     (-> (perform-sbc 0x80 0x01 false)
-        (flag-set? :overflow)) => true
+        (get :overflow-flag)) => true
 
     (-> (perform-sbc 0x7F 0xFF true)
-        (flag-set? :overflow)) => true
+        (get :overflow-flag)) => true
 
     (-> (perform-sbc 0x7F 0xFF false)
-        (flag-set? :overflow)) => false)
+        (get :overflow-flag)) => false)

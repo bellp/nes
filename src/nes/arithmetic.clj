@@ -1,38 +1,35 @@
 (ns nes.arithmetic
     (:require [nes.cpu :refer :all]))
 
-(defn op-adc
-  [cpu m]
-  (let [carry (bit-and (:status cpu) 0x01)
-        acc (:acc cpu)
-        sum (+ acc m carry)
-        byte-sum (bit-and sum 0xFF)]
-      (-> cpu
-        (assoc :acc byte-sum)
-        (set-flag :carry (> sum 0xFF))
-        (set-flag :zero (= byte-sum 0))
-        (set-flag :sign (bit-test byte-sum 7))
-        (set-flag :overflow
-        (not
-          (=
-            (bit-test byte-sum 7)
-            (bit-test acc 7)))))))
-
 (defn adc
   [system m]
-  (op-adc (:cpu system) m))
+  (let [carry (if (get system :carry-flag) 1 0)
+        acc (:acc system)
+        sum (+ acc m carry)
+        byte-sum (bit-and sum 0xFF)]
+      (-> system
+          (assoc :acc byte-sum)
+          (assoc :carry-flag (> sum 0xFF))
+          (assoc :zero-flag (= byte-sum 0))
+          (assoc :sign-flag (bit-test byte-sum 7))
+          (assoc :overflow-flag
+            (not
+              (=
+                (bit-test byte-sum 7)
+                (bit-test acc 7)))))))
 
-(defn op-sbc [cpu m]
-    (let [carry (bit-and (:status cpu) 0x01)
-          acc (:acc cpu)
+(defn sbc
+  [system m]
+    (let [carry (if (get system :carry-flag) 1 0)
+          acc (:acc system)
           sum (- acc m (bit-flip carry 0))
           byte-sum (bit-and sum 0xFF)]
-          (-> cpu
+          (-> system
               (assoc :acc byte-sum)
-              (set-flag :carry (<= sum 0xFF))
-              (set-flag :zero (= byte-sum 0))
-              (set-flag :sign (bit-test byte-sum 7))
-              (set-flag :overflow
+              (assoc :carry-flag (<= sum 0xFF))
+              (assoc :zero-flag (= byte-sum 0))
+              (assoc :sign-flag (bit-test byte-sum 7))
+              (assoc :overflow-flag
                   (and
                       (bit-test (bit-xor acc m) 7)
                       (bit-test (bit-xor acc byte-sum) 7))))))
@@ -44,41 +41,43 @@
         (bit-and 0xFF)))
 
 (defn update-by-one-flags
-    "Update cpu flags after incrementing/decrementing"
-    [cpu value]
-    (-> cpu
-        (set-flag :zero (= value 0))
-        (set-flag :sign (bit-test value 7))))
+    "Update system flags after incrementing/decrementing"
+    [system value]
+    (-> system
+        (assoc :zero-flag (= value 0))
+        (assoc :sign-flag (bit-test value 7))))
 
 (defn change-memory-by-one
     "Used by increment/decrement functions to change values in memory"
-    [cpu op mem addr]
-    (let [result (change-by-one op (mem addr))]
-      { :cpu (update-by-one-flags cpu result)
-        :mem (assoc mem addr result) }))
+    [system op addr]
+    (let [mem (:mem system)
+          result (change-by-one op (mem addr))]
+      (-> system
+          (update-by-one-flags result)
+          (assoc-in [:mem addr] result))))
 
 (defn change-register-by-one
     "Used by increment/decrement functions to change values in a register"
-    [cpu op register]
-    (let [result (change-by-one op (register cpu))]
-    (-> cpu
+    [system op register]
+    (let [result (change-by-one op (register system))]
+    (-> system
         (update-by-one-flags result)
         (assoc register result))))
 
-(defn op-dec [cpu mem addr]
-    (change-memory-by-one cpu dec mem addr))
+(defn op-dec [system addr]
+    (change-memory-by-one system dec addr))
 
-(defn op-inc [cpu mem addr]
-    (change-memory-by-one cpu inc mem addr))
+(defn op-inc [system addr]
+    (change-memory-by-one system inc addr))
 
-(defn op-dex [cpu]
-    (change-register-by-one cpu dec :x))
+(defn op-dex [system]
+    (change-register-by-one system dec :x))
 
-(defn op-dey [cpu]
-    (change-register-by-one cpu dec :y))
+(defn op-dey [system]
+    (change-register-by-one system dec :y))
 
-(defn op-inx [cpu]
-    (change-register-by-one cpu inc :x))
+(defn op-inx [system]
+    (change-register-by-one system inc :x))
 
-(defn op-iny [cpu]
-    (change-register-by-one cpu inc :y))
+(defn op-iny [system]
+    (change-register-by-one system inc :y))
