@@ -6,9 +6,9 @@
 
 (fact "address calculates zeropage addresses"
   (-> (new-system)
-      (address :zeropage 0x3F)) => 0x3F
-  (-> (new-system)
-      (address :zeropage 0x1FF)) => 0xFF)
+      (assoc-in [:mem 0x3F] 0x11)
+      (read-from-memory { :address-mode :zeropage
+                  :operand 0x3F })) => 0x11)
 
 (fact "address calculates zeropage-reg8 addressing modes"
    (-> (new-system)
@@ -21,9 +21,9 @@
 
 (fact "address calculates absolute addresses"
   (-> (new-system)
-      (address :absolute 0x1234)) => 0x1234
-  (-> (new-system)
-      (address :absolute 0x12345)) => 0x2345)
+      (assoc-in [:mem 0x1234] 0x33)
+      (read-from-memory { :address-mode :absolute
+              :operand 0x1234 })) => 0x33)
 
 (fact "address calculates absolute-reg16 addresses"
   (-> (new-system)
@@ -38,31 +38,43 @@
   (-> (new-system)
       (assoc-in [:mem 0x1234] 0xCD)
       (assoc-in [:mem 0x1235] 0xAB)
-      (address :indirect 0x1234)) => 0xABCD)
+      (assoc-in [:mem 0xABCD] 0xEE)
+      (read-from-memory { :address-mode :indirect
+                          :operand 0x1234 })) => 0xEE)
 
 (fact "address calculates (indirect+x) addresses"
   (-> (new-system)
       (assoc :x 0x01)
-      (assoc-in [:mem 0x35] 0xCD)
-      (assoc-in [:mem 0x36] 0xAB)
-      (address :indirectx 0x34)) => 0xABCD
-  (-> (new-system)
-      (assoc :x 0x05)
-      (assoc-in [:mem 0x04] 0xCD)
-      (assoc-in [:mem 0x05] 0xAB)
-      (address :indirectx 0xFF)) => 0xABCD)
+      (assoc-in [:mem 0x12] 0xCD)
+      (assoc-in [:mem 0x13] 0xAB)
+      (assoc-in [:mem 0xABCD] 0xEE)
+      (read-from-memory { :address-mode :indirectx
+                          :operand 0x11 })) => 0xEE
 
-  (fact "address calculates (indirect)+y addresses"
-    (-> (new-system)
-        (assoc :y 0x01)
-        (assoc-in [:mem 0x34] 0xCD)
-        (assoc-in [:mem 0x35] 0xAB)
-        (address :indirecty 0x34)) => 0xABCE
-    (-> (new-system)
-        (assoc :y 0x05)
-        (assoc-in [:mem 0x04] 0xFE)
-        (assoc-in [:mem 0x05] 0xFF)
-        (address :indirecty 0x04)) => 0x0003)
+  (-> (new-system)
+      (assoc :x 0x01)
+      (assoc-in [:mem 0x00] 0xCD)
+      (assoc-in [:mem 0x01] 0xAB)
+      (assoc-in [:mem 0xABCD] 0x33)
+      (read-from-memory { :address-mode :indirectx
+                          :operand 0xFF })) => 0x33)
+
+(fact "address calculates (indirect)+y addresses"
+  (-> (new-system)
+      (assoc :y 0x01)
+      (assoc-in [:mem 0x34] 0xCD)
+      (assoc-in [:mem 0x35] 0xAB)
+      (assoc-in [:mem 0xABCE] 0x33)
+      (read-from-memory { :address-mode :indirecty
+                          :operand 0x34 })) => 0x33
+
+  (-> (new-system)
+      (assoc :y 0x05)
+      (assoc-in [:mem 0x34] 0xFF)
+      (assoc-in [:mem 0x35] 0xFF)
+      (assoc-in [:mem 0x0004] 0x33)
+      (read-from-memory { :address-mode :indirecty
+                          :operand 0x34 })) => 0x33)
 
 ; (fact "get-operand returns nil of size is 0"
 ;   (-> (new-memory)

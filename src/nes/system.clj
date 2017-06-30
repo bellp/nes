@@ -39,13 +39,11 @@
   [system]
   (let [mem (:mem system)
         opcode (get mem (:pc system))
-        instruction (get instruction-set opcode)
+        instruction (get-current-instruction system)
         cycles (:cycles instruction)
         address-mode (:address-mode instruction)
-        operand (get-operand system instruction)
-        m (address system address-mode operand)
+        m (read-from-memory system instruction)
         opcode-fn (:function instruction)]
-    (println (format "%02X" m))
     (-> system
         (opcode-fn m)
         (update :cycle-count #(+ cycles %))

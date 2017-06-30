@@ -7,25 +7,13 @@
   (->> (repeat 65536 0x00)
        (vec)))
 
-(defn add-8
-  [x y]
-  (bit-and
-    (+ x y)
-    0xFF))
-
-(defn add-16
-  [x y]
-  (bit-and
-    (+ x y)
-    0xFFFF))
-
 (defn combine-bytes
   [msb lsb]
   (bit-or
     (bit-shift-left msb 8)
     lsb))
 
-(defn read-value
+(defn read-operand
   "Gets an operand form a given address given a
   size (0, 1, or 2 bytes)"
   [mem addr size]
@@ -36,17 +24,36 @@
         (get mem (inc addr))
         (get mem addr))))
 
-(defn get-operand
-  [system instruction]
-  (let [operand-size (get operand-sizes (:address-mode instruction))
-        pc (:pc system)]
-    (read-value (:mem system) (inc pc) operand-size)))
+(defn get-current-instruction
+  [system]
+  (let [opcode (get (:mem system) (:pc system))
+        instruction (get instruction-set opcode)
+        operand-size ((:address-mode instruction) operand-sizes)
+        operand (read-operand (:mem system) (:pc system) operand-size)]
+    (assoc instruction :operand operand)))
 
-(defn indirect
+(defn indirect-address
   [mem operand]
   (let [msb (get mem (bit-and (inc operand) 0xFFFF))
         lsb (get mem (bit-and operand 0xFFFF))]
     (combine-bytes msb lsb)))
+
+(defn indirect-y
+  [system operand]
+  (let [mem (:mem system)
+        addr (-> mem
+                (indirect-address operand)
+                (+ (:y system))
+                (bit-and 0xFFFF))]
+    (get mem addr)))
+
+(defn indirect-x
+  [system operand]
+  (let [mem (:mem system)
+        x-offset (bit-and (+ operand (:x system)) 0xFF)
+        addr (-> mem
+                (indirect-address x-offset))]
+    (get mem addr)))
 
 (defn zeropage-reg8
   [system operand reg]
@@ -58,29 +65,20 @@
     (let [src (bit-and (+ reg operand) 0xFFFF)]
       (get-in system [:mem src])))
 
-(defn address
-  "Calculates the address using the specified mode"
-  [system mode operand]
-  (case mode
-    :relative (throw (Exception. "TODO"))
-    :zeropage (bit-and operand 0xFF)
-    :zeropagex (zeropage-reg8 system operand (:x system))
-    :zeropagey (zeropage-reg8 system operand (:y system))
-    :absolute (bit-and operand 0xFFFF)
-    :absolutex (absolute-reg16 system operand (:x system))
-    :absolutey (absolute-reg16 system operand (:y system))
-    :indirect (-> system
-                  (:mem)
-                  (indirect operand))
-    :indirectx (-> system
-                  (:mem)
-                  (indirect
-                    (bit-and
-                      (+ operand
-                        (get system :x))
-                      0xFF)))
-    :indirecty (-> system
-                   (:mem)
-                   (indirect operand)
-                   (+ (get system :y))
-                   (bit-and 0xFFFF))))
+(defn read-from-memory
+  "Reads a value from memory for a given instruction."
+  [system instruction]
+  (let [mem (:mem system)
+        mode (:address-mode instruction)
+        operand (:operand instruction)]
+    (case mode
+      :relative (throw (Exception. "TODO"))
+      :zeropage (get-in system [:mem operand])
+      :zeropagex (zeropage-reg8 system operand (:x system))
+      :zeropagey (zeropage-reg8 system operand (:y system))
+      :absolute (get-in system [:mem operand])
+      :absolutex (absolute-reg16 system operand (:x system))
+      :absolutey (absolute-reg16 system operand (:y system))
+      :indirect (get mem (indirect-address mem operand))
+      :indirectx (indirect-x system operand)
+      :indirecty (indirect-y system operand))))
