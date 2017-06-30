@@ -1,7 +1,7 @@
 (ns nes.opcodes
   (:require [nes.arithmetic :refer :all]))
 
-(def operand-size
+(def operand-sizes
   "The size of the operand (in bytes) for a given addressing mode"
     { :implied     0
       :accumulator 0
@@ -15,48 +15,48 @@
       :indirectx   1
       :indirecty   1 })
 
-(def instructions
+(def instruction-set
   { 0x00 { :name "BRK"
            :address-mode :implied
            :cycles 7 }
 
     0x69 { :name "ADC"
-           :function adc
+           :function adc-opfn
            :address-mode :immediate
            :cycles 2 }
 
     0x65 { :name "ADC"
-           :function adc
+           :function adc-opfn
            :address-mode :zeropage
            :cycles 3 }
 
     0x75 { :name "ADC"
-           :function adc
+           :function adc-opfn
            :address-mode :zeropagex
            :cycles 4 }
 
     0x60 { :name "ADC"
-           :function adc
+           :function adc-opfn
            :address-mode :absolute
            :cycles 4 }
 
     0x70 { :name "ADC"
-           :function adc
+           :function adc-opfn
            :address-mode :absolutex
            :cycles 4 }
 
     0x79 { :name "ADC"
-           :function adc
+           :function adc-opfn
            :address-mode :absolutey
            :cycles 4 }
 
     0x61 { :name "ADC"
-           :function adc
+           :function adc-opfn
            :address-mode :indirectx
            :cycles 6 }
 
     0x71 { :name "ADC"
-           :function adc
+           :function adc-opfn
            :address-mode :indirecty
            :cycles 5 }
 

@@ -9,14 +9,14 @@
     (-> (new-system)
         (assoc :carry-flag carry)
         (assoc :acc acc)
-        (sbc m)))
+        (sbc-opfn m)))
 
 (defn perform-adc
     [acc m carry]
     (-> (new-system)
         (assoc :carry-flag carry)
         (assoc :acc acc)
-        (adc m)))
+        (adc-opfn m)))
 
 (fact "adc sets the carry flag when sum is greater than 255"
     (-> (perform-adc 200 100 false)
@@ -67,12 +67,12 @@
 (fact "dec subtracts 1 from 0x05 located at address 0x20, setting value to 0x04"
       (-> (new-system)
           (assoc-in [:mem 0x20] 0x05)
-          (op-dec 0x20)
+          (dec-opfn 0x20)
           (:mem)
           (get 0x20)) => 0x04
 
       (-> (new-system)
-          (op-dec 0x20)
+          (dec-opfn 0x20)
           (:mem)
           (get 0x20)) => 0xFF)
 

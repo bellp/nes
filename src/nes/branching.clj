@@ -1,20 +1,22 @@
 (ns nes.branching
   (:use [nes.system]))
 
-(defn jmp
+(defn jmp-opfn
   [system m]
   (assoc system :pc m))
 
-(defn bcc
+(defn bcc-opfn
   [system m]
   (if (get system :carry-flag)
     system
-    (assoc system :pc m)))
+    (-> system
+        (assoc :pc m)
+        (update :cycle-count inc))))
 
-(defn bcs
+(defn bcs-opfn
   [system m]
   (if (get system :carry-flag)
-    (assoc system :pc m)
-     system))
-
-
+    (-> system
+      (assoc :pc m)
+      (update :cycle-count inc))
+    system))

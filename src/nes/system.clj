@@ -7,8 +7,8 @@
   { :acc           0x00
     :x             0x00
     :y             0x00
-    :pc            0x00
-    :sp            0x00
+    :pc            0x0000
+    :sp            0xFF
 
     :carry-flag    false
     :zero-flag     false
@@ -19,17 +19,34 @@
     :brk-flag      false
     :sign-flag     false
 
-    :cycles        0
+    :cycle-count   0
     :mem          (new-memory) })
+
+(defn update-pc
+  [system instruction]
+  (update system :pc
+    (fn [pc]
+      (-> instruction
+          (:address-mode)
+          (operand-sizes)
+          (inc)
+          (+ pc)))))
 
 (defn execute
   "execute takes a system value and executes the next instruction,
   return a new system. This can be thought as the heart of the CPU
   emulator."
   [system]
-  (let [cpu (get system :cpu)
-        mem (get system :mem)
-        opcode (get mem (:pc cpu))
-        instruction (opcode instructions)
-        operand-size ((:address-mode instruction) operand-size)]
-    "TBD"))
+  (let [mem (:mem system)
+        opcode (get mem (:pc system))
+        instruction (get instruction-set opcode)
+        cycles (:cycles instruction)
+        address-mode (:address-mode instruction)
+        operand (get-operand system instruction)
+        m (address system address-mode operand)
+        opcode-fn (:function instruction)]
+    (println (format "%02X" m))
+    (-> system
+        (opcode-fn m)
+        (update :cycle-count #(+ cycles %))
+        (update-pc instruction))))

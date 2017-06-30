@@ -7,34 +7,43 @@
 (fact "jmp changes PC to address"
   (-> (new-system)
       (assoc :pc 0x1234)
-      (jmp 0x5678)
+      (jmp-opfn 0x5678)
       (get :pc)) => 0x5678)
 
-(fact "bcc only jumps when carry flag is clear"
+(fact "bcc only branches when carry flag is clear"
   (-> (new-system)
       (assoc :pc 0x1234)
       (assoc :carry-flag false)
-      (bcc 0x5678)
+      (bcc-opfn 0x5678)
       (get :pc)) => 0x5678
 
   (-> (new-system)
       (assoc :pc 0x1234)
       (assoc :carry-flag true)
-      (bcc 0x5678)
+      (bcc-opfn 0x5678)
       (get :pc)) => 0x1234)
 
-(fact "bcs only jumps when carry flag is set"
+(fact "bcc increments clock by 1 if branch succeeds"
+  (-> (new-system)
+      (assoc :carry-flag false)
+      (bcc-opfn 0x0200)
+      (get :cycle-count)) => 1)
+
+(fact "bcs only branches when carry flag is set"
   (-> (new-system)
       (assoc :pc 0x1234)
       (assoc :carry-flag false)
-      (bcs 0x5678)
+      (bcs-opfn 0x5678)
       (get :pc)) => 0x1234
 
   (-> (new-system)
       (assoc :pc 0x1234)
       (assoc :carry-flag true)
-      (bcs 0x5678)
+      (bcs-opfn 0x5678)
       (get :pc)) => 0x5678)
 
-
-
+(fact "bcs increments clock by 1 if branch succeeds"
+  (-> (new-system)
+      (assoc :carry-flag true)
+      (bcs-opfn 0x0200)
+      (get :cycle-count)) => 1)

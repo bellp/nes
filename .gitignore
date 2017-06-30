@@ -1,2 +1,3 @@
 .vscode/*
 .lein-repl-history
+/target/*
