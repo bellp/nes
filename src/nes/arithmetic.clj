@@ -60,9 +60,9 @@
     "Used by increment/decrement functions to change values in a register"
     [system op register]
     (let [result (change-by-one op (register system))]
-    (-> system
-        (update-by-one-flags result)
-        (assoc register result))))
+     (-> system
+         (update-by-one-flags result)
+         (assoc register result))))
 
 (defn dec-opfn [system addr]
     (change-memory-by-one system dec addr))

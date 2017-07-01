@@ -20,7 +20,7 @@
     :sign-flag     false
 
     :cycle-count   0
-    :mem          (new-memory) })
+    :mem          (new-memory)})
 
 (defn update-pc
   [system instruction]
@@ -44,6 +44,7 @@
         address-mode (:address-mode instruction)
         m (read-from-memory system instruction)
         opcode-fn (:function instruction)]
+
     (-> system
         (opcode-fn m)
         (update :cycle-count #(+ cycles %))

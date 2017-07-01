@@ -8,33 +8,21 @@
   (-> (new-system)
       (assoc-in [:mem 0x3F] 0x11)
       (read-from-memory { :address-mode :zeropage
-                  :operand 0x3F })) => 0x11)
+                         :operand 0x3F })) => 0x11)
 
 (fact "address calculates zeropage-reg8 addressing modes"
-   (-> (new-system)
-       (assoc 0x11 0x77)
-       (zeropage-reg8 0x10 0x01)) => 0x77
-
-  (-> (new-system)
-      (assoc 0x00 0x33)
-      (zeropage-reg8 0xFF 0x01)) => 0x33)
+   (zeropage-reg8 0x01 0x01) => 0x02
+   (zeropage-reg8 0xFF 0x01) => 0x00)
 
 (fact "address calculates absolute addresses"
   (-> (new-system)
       (assoc-in [:mem 0x1234] 0x33)
       (read-from-memory { :address-mode :absolute
-              :operand 0x1234 })) => 0x33)
+                         :operand 0x1234 })) => 0x33)
 
 (fact "address calculates absolute-reg16 addresses"
-  (-> (new-system)
-      (:mem)
-      (assoc 0x1235 0x77)
-      (absolute-reg16 0x1234 0x01)) => 0x77
-
-  (-> (new-system)
-      (:mem)
-      (assoc 0x0000 0x33)
-      (absolute-reg16 0xFFFF 0x01)) => 0x33)
+   (absolute-reg16 0x0001 0x0001) => 0x0002
+   (absolute-reg16 0xFFFF 0x0001) => 0x0000)
 
 (fact "address calculates indirect addresses"
   (-> (new-system)
@@ -119,3 +107,11 @@
 (fact "read-operand returns nil if operand-size is 0 (immediate address mode)"
   (-> (new-memory)
       (read-operand 0x0000 0)) => nil)
+
+(fact "same-page? returns whether two addresses are within the same 256 byte page"
+  (same-page? 0x00 0xFF) => true
+  (same-page? 0x3F 0x13F) => false
+  (same-page? 0xFF 0xFF) => true
+  (same-page? 0x00 0x00) => true
+  (same-page? 0x083F 0x082C) => true
+  (same-page? 0x0200 0x0100) => false)
