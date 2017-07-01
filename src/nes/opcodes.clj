@@ -39,7 +39,7 @@
            :address-mode :zeropagex
            :cycles 4 }
 
-    0x60 { :name "ADC"
+    0x6D { :name "ADC"
            :opcode 0x60
            :function adc-opfn
            :address-mode :absolute

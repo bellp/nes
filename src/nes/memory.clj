@@ -59,14 +59,14 @@
     (get mem addr)))
 
 (defn zeropage-reg8
-  [system operand reg]
+  [mem operand reg]
     (let [src (bit-and (+ reg operand) 0xFF)]
-      (get-in system [:mem src])))
+      (get mem src)))
 
 (defn absolute-reg16
-  [system operand reg]
+  [mem operand reg]
     (let [src (bit-and (+ reg operand) 0xFFFF)]
-      (get-in system [:mem src])))
+      (get mem src)))
 
 (defn read-from-memory
   "Reads a value from memory for a given instruction."
@@ -77,11 +77,11 @@
     (case mode
       :relative (throw (Exception. "TODO"))
       :zeropage (get-in system [:mem operand])
-      :zeropagex (zeropage-reg8 system operand (:x system))
-      :zeropagey (zeropage-reg8 system operand (:y system))
+      :zeropagex (zeropage-reg8 mem operand (:x system))
+      :zeropagey (zeropage-reg8 mem operand (:y system))
       :absolute (get-in system [:mem operand])
-      :absolutex (absolute-reg16 system operand (:x system))
-      :absolutey (absolute-reg16 system operand (:y system))
+      :absolutex (absolute-reg16 mem operand (:x system))
+      :absolutey (absolute-reg16 mem operand (:y system))
       :indirect (get mem (indirect-address mem operand))
       :indirectx (indirect-x system operand)
       :indirecty (indirect-y system operand))))

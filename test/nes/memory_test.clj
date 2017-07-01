@@ -12,11 +12,11 @@
 
 (fact "address calculates zeropage-reg8 addressing modes"
    (-> (new-system)
-       (assoc-in [:mem 0x11] 0x77)
+       (assoc 0x11 0x77)
        (zeropage-reg8 0x10 0x01)) => 0x77
 
   (-> (new-system)
-      (assoc-in [:mem 0x00] 0x33)
+      (assoc 0x00 0x33)
       (zeropage-reg8 0xFF 0x01)) => 0x33)
 
 (fact "address calculates absolute addresses"
@@ -27,11 +27,13 @@
 
 (fact "address calculates absolute-reg16 addresses"
   (-> (new-system)
-      (assoc-in [:mem 0x1235] 0x77)
+      (:mem)
+      (assoc 0x1235 0x77)
       (absolute-reg16 0x1234 0x01)) => 0x77
 
   (-> (new-system)
-      (assoc-in [:mem 0x0000] 0x33)
+      (:mem)
+      (assoc 0x0000 0x33)
       (absolute-reg16 0xFFFF 0x01)) => 0x33)
 
 (fact "address calculates indirect addresses"
@@ -82,15 +84,38 @@
       (get-current-instruction)
       (:opcode)) => 0x75)
 
-(fact "get-current-instruction returns instruction with current operand"
+(fact "get-current-instruction returns instruction with current 8-bit operand"
   (-> (new-system)
       (assoc-in [:mem 0x00] 0x75)
       (assoc-in [:mem 0x01] 0x55)
       (get-current-instruction)
       (:operand)) => 0x55)
 
+(fact "get-current-instruction returns instruction with current 16-bit operand"
+  (-> (new-system)
+      (assoc-in [:mem 0x00] 0x6D)
+      (assoc-in [:mem 0x01] 0x34)
+      (assoc-in [:mem 0x02] 0x12)
+      (get-current-instruction)
+      (:operand)) => 0x1234)
+
 (fact "get-current-instruction returns instruction with correct name"
   (-> (new-system)
       (assoc-in [:mem 0x00] 0x75)
       (get-current-instruction)
       (:name)) => "ADC")
+
+(fact "read-operand can return an 8-bit value in memory"
+  (-> (new-memory)
+      (assoc 0x1234 0x55)
+      (read-operand 0x1234 1)) => 0x55)
+
+(fact "read-operand can return an 8-bit value in memory"
+  (-> (new-memory)
+      (assoc 0x1234 0xCD)
+      (assoc 0x1235 0xAB)
+      (read-operand 0x1234 2)) => 0xABCD)
+
+(fact "read-operand returns nil if operand-size is 0 (immediate address mode)"
+  (-> (new-memory)
+      (read-operand 0x0000 0)) => nil)

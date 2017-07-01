@@ -5,8 +5,10 @@
 
 (fact "end-to-end test"
   (-> (new-system)
-      (assoc-in [:mem 0x00] 0x75)
-      (assoc-in [:mem 0x01] 0x60)
-      (assoc-in [:mem 0x60] 0x11)
+      (assoc :x 0x01)
+      (assoc-in [:mem 0x00] 0x6D)
+      (assoc-in [:mem 0x01] 0xCD)
+      (assoc-in [:mem 0x02] 0xAB)
+      (assoc-in [:mem 0xABCD] 0x33)
       (execute)
       (show-system)) => nil)
