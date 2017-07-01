@@ -76,18 +76,21 @@
       (read-from-memory { :address-mode :indirecty
                           :operand 0x34 })) => 0x33)
 
-; (fact "get-operand returns nil of size is 0"
-;   (-> (new-memory)
-;       (get-operand 0x0000, 0)) => nil)
+(fact "get-current-instruction returns instruction with current opcode"
+  (-> (new-system)
+      (assoc-in [:mem 0x00] 0x75)
+      (get-current-instruction)
+      (:opcode)) => 0x75)
 
-; (fact "get-operand returns single byte from memory if size is 1"
-;   (-> (new-memory)
-;       (assoc 0x01 0xAB)
-;       (assoc 0x02 0xCD)
-;       (get-operand 0x0001 1)) => 0xAB)
+(fact "get-current-instruction returns instruction with current operand"
+  (-> (new-system)
+      (assoc-in [:mem 0x00] 0x75)
+      (assoc-in [:mem 0x01] 0x55)
+      (get-current-instruction)
+      (:operand)) => 0x55)
 
-; (fact "get-operand returns two bytes from memory if size is 2"
-;   (-> (new-memory)
-;       (assoc 0x01 0xAB)
-;       (assoc 0x02 0xCD)
-;       (get-operand 0x01 2)) => 0xCDAB)
+(fact "get-current-instruction returns instruction with correct name"
+  (-> (new-system)
+      (assoc-in [:mem 0x00] 0x75)
+      (get-current-instruction)
+      (:name)) => "ADC")

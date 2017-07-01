@@ -29,7 +29,10 @@
   (let [opcode (get (:mem system) (:pc system))
         instruction (get instruction-set opcode)
         operand-size ((:address-mode instruction) operand-sizes)
-        operand (read-operand (:mem system) (:pc system) operand-size)]
+        operand (read-operand
+                (:mem system)
+                (inc (:pc system))
+                operand-size)]
     (assoc instruction :operand operand)))
 
 (defn indirect-address
