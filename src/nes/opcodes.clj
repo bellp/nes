@@ -40,12 +40,13 @@
            :cycles 4}
 
     0x6D { :name "ADC"
-           :opcode 0x60
+           :opcode 0x6D
            :function adc-opfn
            :address-mode :absolute
            :cycles 4}
 
-    0x70 { :name "ADC"
+    0x7D { :name "ADC"
+           :opcode 0x7D
            :function adc-opfn
            :address-mode :absolutex
            :cycles 4}
@@ -83,5 +84,9 @@
    0xF0 { :name "BEQ"
           :opcode 0xF0
           :address-mode :relative
-          :cycles 2}})
+          :cycles 2}
 
+   0xB6 { :name "LDX"
+          :opcode 0xB6
+          :address-mode :zeropagey
+          :cycles 4}})

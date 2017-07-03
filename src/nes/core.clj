@@ -2,7 +2,8 @@
   (:use [nes.system]
         [nes.opcodes]
         [nes.debug]
-        [nes.memory]))
+        [nes.memory]
+        [nes.assembly]))
 
 (defn foo
   "I don't do a whole lot."
