@@ -89,4 +89,14 @@
    0xB6 { :name "LDX"
           :opcode 0xB6
           :address-mode :zeropagey
-          :cycles 4}})
+          :cycles 4}
+
+   0xE8 { :name "INX"
+          :opcode 0xE8
+          :address-mode :implied
+          :cycles 2}
+
+   0x4A { :name "LSR"
+          :opcode 0x4A
+          :address-mode :accumulator
+          :cycles 2}})

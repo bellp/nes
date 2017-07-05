@@ -106,3 +106,10 @@
   (same-page? 0x00 0x00) => true
   (same-page? 0x083F 0x082C) => true
   (same-page? 0x0200 0x0100) => false)
+
+(fact "write16 can write a 16-bit value to memory"
+  (let [system (-> (new-system)
+                   (write16 0x1000 0xABCD))]
+   (get-in system [:mem 0x1000]) => 0xCD
+   (get-in system [:mem 0x1001]) => 0xAB))
+

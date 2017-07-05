@@ -13,6 +13,18 @@
     (bit-shift-left msb 8)
     lsb))
 
+(defn write16 [system address value]
+  (let [msb (-> value
+                (bit-shift-right 8)
+                (bit-and 0xFF))
+        lsb (bit-and value 0xFF)]
+    (-> system
+        (assoc-in [:mem address] lsb)
+        (assoc-in [:mem (bit-and 0xFFFF (inc address))] msb))))
+
+(defn write8 [system address value]
+  (assoc-in system [:mem address] (bit-and 0xFF value)))
+
 (defn read-operand
   "Gets an operand form a given address given a
   size (0, 1, or 2 bytes)"
