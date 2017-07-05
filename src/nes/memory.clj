@@ -88,6 +88,7 @@
         mode (:address-mode instruction)
         operand (:operand instruction)]
     (case mode
+      :immediate  nil
       :zeropage   operand
       :zeropagex  (zeropage-reg8 operand (:x system))
       :zeropagey  (zeropage-reg8 operand (:y system))
@@ -101,6 +102,11 @@
 (defn read-from-memory
   "Reads a value from memory for a given instruction."
   [system instruction]
-  (->> (resolve-address system instruction)
-       (get (:mem system))))
+  (let [mode (:address-mode instruction)]
+    (case mode
+      :implied nil
+      :accumulator nil
+      :immediate (:operand instruction)
+      (->> (resolve-address system instruction)
+           (get (:mem system))))))
 

@@ -44,7 +44,6 @@
         address-mode (:address-mode instruction)
         m (read-from-memory system instruction)
         opcode-fn (:function instruction)]
-
     (-> system
         (opcode-fn m)
         (update :cycle-count #(+ cycles %))

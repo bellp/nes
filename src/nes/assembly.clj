@@ -90,12 +90,12 @@
         opcode (:opcode instruction-info)
         address-mode (:address-mode instruction-info)
         operand (:operand instruction-info)
-        pc (:pc system)
-        operand-size (address-mode operand-sizes)]
+        pc (:pc system)]
+    (if (nil? address-mode) (println (format "ERROR: Unknown address mode for %s" statement)))
     (-> system
         (write8 pc opcode)
         (write-operand-to-memory instruction-info)
         (update :pc (fn [pc]
                         (bit-and
                           0xFFFF
-                          (+ pc 1 operand-size)))))))
+                          (+ pc 1 (address-mode operand-sizes))))))))
