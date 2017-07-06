@@ -127,7 +127,7 @@
       (get-current-instruction)
       (:operand)) => 0x33)
 
-(fact "compile-statement updates PC after compiling instruction with a 1-byte operand "
+(fact "compile-statement updates PC after compiling instruction with a 1-byte operand"
   (-> (new-system)
       (compile-statement "ADC $33")
       (:pc)) => 0x0002)
@@ -139,7 +139,7 @@
       (get-current-instruction)
       (:opcode)) => 0xE8)
 
-(fact "compile-statement updates PC after compiling instruction with no operand "
+(fact "compile-statement updates PC after compiling instruction with no operand"
   (-> (new-system)
       (compile-statement "INX")
       (:pc)) => 0x0001)
