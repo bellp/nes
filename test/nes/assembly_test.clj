@@ -1,5 +1,6 @@
 (ns nes.assembly-test
     (:use [midje.sweet]
+          [nes.memory]
           [nes.system]
           [nes.assembly]))
 
