@@ -86,3 +86,27 @@
       (assoc :acc 0x80)
       (eor-opfn 0x80)
       (:sign-flag)) => false)
+
+(fact "BIT sets the zero flag if the result of ANDing A and M are zero"
+  (-> (new-system)
+      (assoc :acc 0x00)
+      (bit-opfn 0xFF)
+      (:zero-flag)) => true)
+
+(fact "BIT sets the sign flag if bit 7 of m is set"
+  (-> (new-system)
+      (bit-opfn 0x80)
+      (:sign-flag)) => true
+
+  (-> (new-system)
+      (bit-opfn 0x7F)
+      (:sign-flag)) => false)
+
+(fact "BIT sets the overflow flag if bit 6 of m is set"
+  (-> (new-system)
+      (bit-opfn 0x40)
+      (:overflow-flag)) => true
+
+  (-> (new-system)
+      (bit-opfn 0x3F)
+      (:overflow-flag)) => false)

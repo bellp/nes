@@ -120,7 +120,7 @@
                    :address-mode :relative
                    :cycles 2}]}
 
-   "BIT" {:function nil
+   "BIT" {:function bit-opfn
           :codes [{:opcode 0x24
                    :address-mode :zeropage
                    :cycles 3}

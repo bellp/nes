@@ -1,5 +1,12 @@
 (ns nes.logic)
 
+(defn bit-opfn [system m]
+  (let [result (bit-and m (:acc system))]
+    (-> system
+        (assoc :zero-flag (= result 0))
+        (assoc :sign-flag (bit-test m 7))
+        (assoc :overflow-flag (bit-test m 6)))))
+
 (defn and-opfn [system m]
   (bitop-opfn system m bit-and))
 
