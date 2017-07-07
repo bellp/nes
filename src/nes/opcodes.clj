@@ -179,7 +179,7 @@
                    :address-mode :implied
                    :cycles 2}]}
 
-   "CMP" {:function nil
+   "CMP" {:function cmp-opfn
           :codes [{:opcode 0xC9
                    :address-mode :immediate
                    :cycles 2}
@@ -212,7 +212,7 @@
                    :address-mode :indirecty
                    :cycles 5}]}
 
-   "CPX" {:function nil
+   "CPX" {:function cpx-opfn
           :codes [{:opcode 0xE0
                    :address-mode :immediate
                    :cycles 2}
@@ -225,7 +225,7 @@
                    :address-mode :absolute
                    :cycles 4}]}
 
-   "CPY" {:function nil
+   "CPY" {:function cpy-opfn
           :codes [{:opcode 0xC0
                    :address-mode :immediate
                    :cycles 2}
