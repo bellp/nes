@@ -1,5 +1,6 @@
 (ns nes.opcodes
-  (:require [nes.arithmetic :refer :all]))
+  (:require [nes.arithmetic :refer :all]
+            [nes.logic :refer :all]))
 
 (def operand-sizes
   "The size of the operand (in bytes) for a given addressing mode"
@@ -50,7 +51,7 @@
                    :address-mode :indirecty
                    :cycles 5}]}
 
-   "AND" {:function nil
+   "AND" {:function and-opfn
           :codes [{:opcode 0x29
                    :address-mode :immediate
                    :cycles 2}
@@ -264,7 +265,7 @@
                    :address-mode :implied
                    :cycles 2}]}
 
-   "EOR" {:function nil
+   "EOR" {:function eor-opfn
           :codes [{:opcode 0x49
                    :address-mode :immediate
                    :cycles 2}
@@ -439,7 +440,7 @@
                    :address-mode :implied
                    :cycles 2}]}
 
-   "ORA" {:function nil
+   "ORA" {:function ora-opfn
           :codes [{:opcode 0x09
                    :address-mode :immediate
                    :cycles 2}
@@ -677,12 +678,6 @@
                    :address-mode :implied
                    :cycles 2}]}})
 
-
-
-(defn inspect [x]
-  (println x
-   x))
-
 (def instruction-set
   (->> instructions
        (keys)
@@ -699,6 +694,3 @@
        (map (fn [x]
               {(:opcode x) x}))
        (reduce (fn [x y] (merge x y)))))
-
-
-
