@@ -18,20 +18,20 @@
       (assoc :acc acc)
       (adc-opfn m)))
 
-(fact "adc sets the carry flag when sum is greater than 255"
+(fact "ADC sets the carry flag when sum is greater than 255"
   (-> (perform-adc 200 100 false)
       (get :carry-flag)) => true
 
   (-> (perform-adc 100 100 false)
       (get :carry-flag)) => false)
 
-(fact "adc adds sum of ACC + M + Carry"
+(fact "ADC adds sum of ACC + M + Carry"
   (:acc (perform-adc 2 3 false))   => 5
   (:acc (perform-adc 2 3 true))    => 6
   (:acc (perform-adc 255 1 false)) => 0
   (:acc (perform-adc 255 1 true))  => 1)
 
-(fact "adc sets the overflow flag when sum is negative in 2s compliment"
+(fact "ADC sets the overflow flag when sum is negative in 2s compliment"
   (-> (perform-adc 0x01 0x01 false)
       (get :overflow-flag)) => false
 
@@ -44,7 +44,7 @@
   (-> (perform-adc 0x80 0xFF false)
       (get :overflow-flag)) => true)
 
-(fact "adc sets the zero flag when sum is 0, clears when sum is non-0"
+(fact "ADC sets the zero flag when sum is 0, clears when sum is non-0"
   (-> (perform-adc 0x00 0x01 false)
       (get :zero-flag)) => false
 
@@ -54,7 +54,7 @@
   (-> (perform-adc 0x00 0x00 false)
       (get :zero-flag)) => true)
 
-(fact "adc sets the negative flag when sum is negative (bit 7 is set)"
+(fact "ADC sets the negative flag when sum is negative (bit 7 is set)"
   (-> (perform-adc 0x01 0x01 false)
       (get :sign-flag)) => false
 
@@ -64,7 +64,7 @@
   (-> (perform-adc 0xFF 0x01 false)
       (get :sign-flag)) => false)
 
-(fact "dec subtracts 1 from 0x05 located at address 0x20, setting value to 0x04"
+(fact "ADC subtracts 1 from 0x05 located at address 0x20, setting value to 0x04"
   (-> (new-system)
       (assoc-in [:mem 0x20] 0x05)
       (dec-opfn 0x20)
@@ -83,13 +83,25 @@
   (change-by-one inc 0x00) => 0x01
   (change-by-one inc 0xFF) => 0x00)
 
-(fact "sbc instruction should return A - M - Carry"
+(fact "INC instruction increments memory by one"
+  (-> (new-system)
+      (assoc-in [:mem 0x10] 0x42)
+      (inc-opfn 0x10)
+      (get-in [:mem 0x10])) => 0x43)
+
+(fact "INC instruction decrements memory by one"
+  (-> (new-system)
+      (assoc-in [:mem 0x10] 0x42)
+      (dec-opfn 0x10)
+      (get-in [:mem 0x10])) => 0x41)
+
+(fact "SBC instruction should return A - M - Carry"
   (:acc (perform-sbc 0x05 0x01 true))  => 0x04
   (:acc (perform-sbc 0x05 0x01 false)) => 0x03
   (:acc (perform-sbc 0x03 0x09 false)) => 0xF9
   (:acc (perform-sbc 0x03 0x09 true))  => 0xFA)
 
-(fact "sbc sets the overflow flag when sum is negative in 2s compliment"
+(fact "SBC sets the overflow flag when sum is negative in 2s compliment"
   (-> (perform-sbc 0x00 0x01 true)
       (get :overflow-flag)) => false
 

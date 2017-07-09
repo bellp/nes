@@ -32,6 +32,12 @@
           (inc)
           (+ pc)))))
 
+(defn- execute-opfn [system instruction]
+  (let [opfn (:function instruction)]
+    (if (:mutates-memory instruction)
+       (opfn system (resolve-address system instruction))
+       (opfn system (read-from-memory system instruction)))))
+
 (defn execute
   "execute takes a system value and executes the next instruction,
   return a new system. This can be thought as the heart of the CPU
@@ -40,11 +46,8 @@
   (let [mem (:mem system)
         opcode (get mem (:pc system))
         instruction (get-current-instruction system)
-        cycles (:cycles instruction)
-        address-mode (:address-mode instruction)
-        m (read-from-memory system instruction)
-        opcode-fn (:function instruction)]
+        cycles (:cycles instruction)]
     (-> system
-        (opcode-fn m)
+        (execute-opfn instruction)
         (update :cycle-count #(+ cycles %))
         (update-pc instruction))))

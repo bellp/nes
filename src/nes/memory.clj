@@ -88,25 +88,28 @@
         mode (:address-mode instruction)
         operand (:operand instruction)]
     (case mode
-      :immediate  nil
-      :zeropage   operand
-      :zeropagex  (zeropage-reg8 operand (:x system))
-      :zeropagey  (zeropage-reg8 operand (:y system))
-      :absolute   operand
-      :absolutex  (absolute-reg16 operand (:x system))
-      :absolutey  (absolute-reg16 operand (:y system))
-      :indirect   (indirect-address mem operand)
-      :indirectx  (indirect-x system operand)
-      :indirecty  (indirect-y system operand))))
+      :accumulator :accumulator
+      :immediate   nil
+      :relative    operand
+      :zeropage    operand
+      :zeropagex   (zeropage-reg8 operand (:x system))
+      :zeropagey   (zeropage-reg8 operand (:y system))
+      :absolute    operand
+      :absolutex   (absolute-reg16 operand (:x system))
+      :absolutey   (absolute-reg16 operand (:y system))
+      :indirect    (indirect-address mem operand)
+      :indirectx   (indirect-x system operand)
+      :indirecty   (indirect-y system operand))))
 
 (defn read-from-memory
   "Reads a value from memory for a given instruction."
   [system instruction]
   (let [mode (:address-mode instruction)]
     (case mode
-      :implied nil
       :accumulator nil
+      :implied nil
+      :relative (:operand instruction)
       :immediate (:operand instruction)
-      (->> (resolve-address system instruction)
-           (get (:mem system))))))
+        (->> (resolve-address system instruction)
+            (get (:mem system))))))
 

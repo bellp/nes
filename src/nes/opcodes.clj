@@ -19,6 +19,7 @@
 
 (def instructions
   {"ADC" {:function adc-opfn
+          :mutates-memory false
           :codes [{:opcode 0x69
                    :address-mode :immediate
                    :cycles 2}
@@ -52,6 +53,7 @@
                    :cycles 5}]}
 
    "AND" {:function and-opfn
+          :mutates-memory false
           :codes [{:opcode 0x29
                    :address-mode :immediate
                    :cycles 2}
@@ -85,6 +87,7 @@
                    :cycles 5}]}
 
    "ASL" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0x0A
                    :address-mode :accumulator
                    :cycles 2}
@@ -106,21 +109,25 @@
                    :cycles 7}]}
 
    "BCC" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x90
                    :address-mode :relative
                    :cycles 2}]}
 
    "BCS" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xB0
                    :address-mode :relative
                    :cycles 2}]}
 
    "BEQ" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xF0
                    :address-mode :relative
                    :cycles 2}]}
 
    "BIT" {:function bit-opfn
+          :mutates-memory false
           :codes [{:opcode 0x24
                    :address-mode :zeropage
                    :cycles 3}
@@ -130,56 +137,67 @@
                    :cycles 4}]}
 
    "BMI" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x30
                    :address-mode :relative
                    :cycles 2}]}
 
    "BNE" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xD0
                    :address-mode :relative
                    :cycles 2}]}
 
    "BPL" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x10
                    :address-mode :relative
                    :cycles 2}]}
 
    "BRK" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x00
                    :address-mode :implied
                    :cycles 7}]}
 
    "BVC" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x50
                    :address-mode :relative
                    :cycles 2}]}
 
    "BVS" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x70
                    :address-mode :relative
                    :cycles 2}]}
 
    "CLC" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x18
                    :address-mode :implied
                    :cycles 2}]}
 
    "CLD" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xD8
                    :address-mode :implied
                    :cycles 2}]}
 
    "CLI" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x58
                    :address-mode :implied
                    :cycles 2}]}
 
    "CLV" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xB8
                    :address-mode :implied
                    :cycles 2}]}
 
    "CMP" {:function cmp-opfn
+          :mutates-memory false
           :codes [{:opcode 0xC9
                    :address-mode :immediate
                    :cycles 2}
@@ -213,6 +231,7 @@
                    :cycles 5}]}
 
    "CPX" {:function cpx-opfn
+          :mutates-memory false
           :codes [{:opcode 0xE0
                    :address-mode :immediate
                    :cycles 2}
@@ -226,6 +245,7 @@
                    :cycles 4}]}
 
    "CPY" {:function cpy-opfn
+          :mutates-memory false
           :codes [{:opcode 0xC0
                    :address-mode :immediate
                    :cycles 2}
@@ -239,6 +259,7 @@
                    :cycles 4}]}
 
    "DEC" {:function dec-opfn
+          :mutates-memory true
           :codes [{:opcode 0xC6
                    :address-mode :zeropage
                    :cycles 5}
@@ -256,16 +277,19 @@
                    :cycles 7}]}
 
    "DEX" {:function dex-opfn
+          :mutates-memory false
           :codes [{:opcode 0xCA
                    :address-mode :implied
                    :cycles 2}]}
 
    "DEY" {:function dey-opfn
+          :mutates-memory false
           :codes [{:opcode 0x88
                    :address-mode :implied
                    :cycles 2}]}
 
    "EOR" {:function eor-opfn
+          :mutates-memory false
           :codes [{:opcode 0x49
                    :address-mode :immediate
                    :cycles 2}
@@ -299,6 +323,7 @@
                    :cycles 5}]}
 
    "INC" {:function inc-opfn
+          :mutates-memory true
           :codes [{:opcode 0xE6
                    :address-mode :zeropage
                    :cycles 5}
@@ -316,16 +341,19 @@
                    :cycles 7}]}
 
    "INX" {:function inx-opfn
+          :mutates-memory false
           :codes [{:opcode 0xE8
                    :address-mode :implied
                    :cycles 2}]}
 
    "INY" {:function iny-opfn
+          :mutates-memory false
           :codes [{:opcode 0xC8
                    :address-mode :implied
                    :cycles 2}]}
 
    "JMP" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x4C
                    :address-mode :absolute
                    :cycles 3}
@@ -340,6 +368,7 @@
                    :cycles 6}]}
 
    "LDA" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xA9
                    :address-mode :immediate
                    :cycles 2}
@@ -373,6 +402,7 @@
                    :cycles 5}]}
 
    "LDX" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xA2
                    :address-mode :immediate
                    :cycles 2}
@@ -394,6 +424,7 @@
                    :cycles 4}]}
 
    "LDY" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xA0
                    :address-mode :immediate
                    :cycles 2}
@@ -415,6 +446,7 @@
                    :cycles 4}]}
 
    "LSR" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0x4A
                    :address-mode :accumulator
                    :cycles 2}
@@ -436,11 +468,13 @@
                    :cycles 7}]}
 
    "NOP" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xEA
                    :address-mode :implied
                    :cycles 2}]}
 
    "ORA" {:function ora-opfn
+          :mutates-memory false
           :codes [{:opcode 0x09
                    :address-mode :immediate
                    :cycles 2}
@@ -474,26 +508,31 @@
                    :cycles 5}]}
 
    "PHA" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x48
                    :address-mode :implied
                    :cycles 3}]}
 
    "PHP" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x08
                    :address-mode :implied
                    :cycles 3}]}
 
    "PLA" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x68
                    :address-mode :implied
                    :cycles 4}]}
 
    "PLP" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x28
                    :address-mode :implied
                    :cycles 4}]}
 
    "ROL" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0x2A
                    :address-mode :accumulator
                    :cycles 2}
@@ -515,6 +554,7 @@
                    :cycles 7}]}
 
    "ROR" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0x6A
                    :address-mode :accumulator
                    :cycles 2}
@@ -536,16 +576,19 @@
                    :cycles 7}]}
 
    "RTI" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x40
                    :address-mode :implied
                    :cycles 6}]}
 
    "RTS" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x60
                    :address-mode :implied
                    :cycles 6}]}
 
    "SBC" {:function sbc-opfn
+          :mutates-memory false
           :codes [{:opcode 0xE9
                    :address-mode :immediate
                    :cycles 2}
@@ -579,21 +622,25 @@
                    :cycles 5}]}
 
    "SEC" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x38
                    :address-mode :implied
                    :cycles 2}]}
 
    "SED" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0xF8
                    :address-mode :implied
                    :cycles 2}]}
 
    "SEI" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x78
                    :address-mode :implied
                    :cycles 2}]}
 
    "STA" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0x85
                    :address-mode :zeropage
                    :cycles 3}
@@ -623,6 +670,7 @@
                    :cycles 6}]}
 
    "STX" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0x86
                    :address-mode :zeropage
                    :cycles 3}
@@ -636,6 +684,7 @@
                    :cycles 4}]}
 
    "STY" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0x84
                    :address-mode :zeropage
                    :cycles 3}
@@ -649,31 +698,37 @@
                    :cycles 4}]}
 
    "TAX" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0xAA
                    :address-mode :implied
                    :cycles 2}]}
 
    "TAY" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0xA8
                    :address-mode :implied
                    :cycles 2}]}
 
    "TSX" {:function nil
+          :mutates-memory true
           :codes [{:opcode 0xBA
                    :address-mode :implied
                    :cycles 2}]}
 
    "TXA" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x8A
                    :address-mode :implied
                    :cycles 2}]}
 
    "TXS" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x9A
                    :address-mode :implied
                    :cycles 2}]}
 
    "TYA" {:function nil
+          :mutates-memory false
           :codes [{:opcode 0x98
                    :address-mode :implied
                    :cycles 2}]}})
@@ -687,6 +742,7 @@
                      (map (fn [code]
                             {:name key
                              :function (:function instruction)
+                             :mutates-memory (:mutates-memory instruction)
                              :opcode (:opcode code)
                              :address-mode (:address-mode code)
                              :cycles (:cycles code)}))))))
