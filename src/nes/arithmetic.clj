@@ -82,6 +82,13 @@
 (defn iny-opfn [system]
   (change-register-by-one system inc :y))
 
+(defn cmp-reg [system reg8 m]
+  (let [diff (bit-and (- reg8 m) 0xFF)]
+    (-> system
+        (assoc :carry-flag (>= reg8 m))
+        (assoc :zero-flag (= reg8 m))
+        (assoc :sign-flag (bit-test diff 7)))))
+
 (defn cmp-opfn [system m]
   (cmp-reg system m (:acc system)))
 
@@ -90,10 +97,3 @@
 
 (defn cpy-opfn [system m]
   (cmp-reg system m (:y system)))
-
-(defn cmp-reg [system reg8 m]
-  (let [diff (bit-and (- reg8 m) 0xFF)]
-    (-> system
-        (assoc :carry-flag (>= reg8 m))
-        (assoc :zero-flag (= reg8 m))
-        (assoc :sign-flag (bit-test diff 7)))))
