@@ -1,5 +1,4 @@
-(ns nes.memory
-  (:use [nes.opcodes]))
+(ns nes.memory)
 
 (defn new-memory
   "Creates a new 64kb memory space."
@@ -22,30 +21,15 @@
         (assoc-in [:mem address] lsb)
         (assoc-in [:mem (bit-and 0xFFFF (inc address))] msb))))
 
+(defn read8 [system address]
+  (case address
+    :accumulator (:acc system)
+    (get-in system [:mem address])))
+
 (defn write8 [system address value]
-  (assoc-in system [:mem address] (bit-and 0xFF value)))
-
-(defn read-operand
-  "Gets an operand form a given address given a
-  size (0, 1, or 2 bytes)"
-  [mem addr size]
-  (case size
-    0 nil
-    1 (get mem addr)
-    2 (combine-bytes
-        (get mem (inc addr))
-        (get mem addr))))
-
-(defn get-current-instruction
-  [system]
-  (let [opcode (get (:mem system) (:pc system))
-        instruction (get instruction-set opcode)
-        operand-size ((:address-mode instruction) operand-sizes)
-        operand (read-operand
-                 (:mem system)
-                 (inc (:pc system))
-                 operand-size)]
-    (assoc instruction :operand operand)))
+  (case address
+    :accumulator (assoc system :acc (bit-and 0xFF value))
+    (assoc-in system [:mem address] (bit-and 0xFF value))))
 
 (defn indirect-address
   [mem operand]

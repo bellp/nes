@@ -1,7 +1,6 @@
 (ns nes.system
-  (:use [nes.cpu]
-        [nes.opcodes]
-        [nes.memory]))
+  (:use [nes.opcodes]
+        [nes.memory :as mem]))
 
 (defn new-system []
   { :acc           0x00
@@ -37,6 +36,28 @@
     (if (:mutates-memory instruction)
        (opfn system (resolve-address system instruction))
        (opfn system (read-from-memory system instruction)))))
+
+(defn read-operand
+  "Gets an operand form a given address given a
+  size (0, 1, or 2 bytes)"
+  [mem addr size]
+  (case size
+    0 nil
+    1 (get mem addr)
+    2 (combine-bytes
+        (get mem (inc addr))
+        (get mem addr))))
+
+(defn get-current-instruction
+  [system]
+  (let [opcode (get (:mem system) (:pc system))
+        instruction (get instruction-set opcode)
+        operand-size ((:address-mode instruction) operand-sizes)
+        operand (read-operand
+                 (:mem system)
+                 (inc (:pc system))
+                 operand-size)]
+    (assoc instruction :operand operand)))
 
 (defn execute
   "execute takes a system value and executes the next instruction,

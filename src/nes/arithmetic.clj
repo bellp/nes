@@ -1,5 +1,4 @@
-(ns nes.arithmetic
-  (:require [nes.cpu :refer :all]))
+(ns nes.arithmetic)
 
 (defn adc-opfn
   [system m]

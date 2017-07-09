@@ -1,6 +1,5 @@
 (ns nes.branching-test
     (:require [midje.sweet :refer :all]
-              [nes.cpu :refer :all]
               [nes.system :refer :all]
               [nes.branching :refer :all]))
 

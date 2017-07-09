@@ -86,7 +86,7 @@
                    :address-mode :indirecty
                    :cycles 5}]}
 
-   "ASL" {:function nil
+   "ASL" {:function asl-opfn
           :mutates-memory true
           :codes [{:opcode 0x0A
                    :address-mode :accumulator
