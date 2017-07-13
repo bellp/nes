@@ -3,6 +3,18 @@
               [nes.system :refer :all]
               [nes.branching :refer :all]))
 
+(fact "branch can jump with positive relative number"
+  (-> (new-system)
+      (assoc :pc 0x1000)
+      (branch 0x20)
+      (get :pc)) => 0x1020)
+
+(fact "branch can jump with negative relative number"
+  (-> (new-system)
+      (assoc :pc 0x1000)
+      (branch 0xE0)
+      (get :pc)) => 0x0FE0)
+
 (fact "jmp changes PC to address"
   (-> (new-system)
       (assoc :pc 0x1234)

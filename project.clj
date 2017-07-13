@@ -7,6 +7,6 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]]
   :debug-repl {:resource-paths ["/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/lib/tools.jar"]
-              :repl-options {:nrepl-middleware [debug-middleware.core/debug-middleware]}
-              :dependencies [[org.clojure/clojure "1.8.0"]
-                             [debug-middleware "0.1.2-SNAPSHOT"]]})
+               :repl-options {:nrepl-middleware [debug-middleware.core/debug-middleware]}
+               :dependencies [[org.clojure/clojure "1.8.0"]
+                              [debug-middleware "0.1.2-SNAPSHOT"]]})
