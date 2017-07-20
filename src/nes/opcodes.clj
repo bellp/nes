@@ -363,7 +363,8 @@
                    :address-mode :indirect
                    :cycles 5}]}
 
-   "JSR" {:function nil
+   "JSR" {:function branch/jsr-opfn
+          :mutates-memory true
           :codes [{:opcode 0x20
                    :address-mode :absolute
                    :cycles 6}]}
@@ -582,7 +583,7 @@
                    :address-mode :implied
                    :cycles 6}]}
 
-   "RTS" {:function nil
+   "RTS" {:function branch/rts-opfn
           :mutates-memory false
           :codes [{:opcode 0x60
                    :address-mode :implied

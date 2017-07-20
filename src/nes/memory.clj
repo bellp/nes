@@ -6,22 +6,50 @@
   (->> (repeat 65536 0x00)
        (vec)))
 
-(defn combine-bytes
-  [msb lsb]
-  (bit-or
-    (bit-shift-left msb 8)
-    lsb))
+(defn most-significant-byte [value]
+  (-> value
+      (bit-shift-right 8)
+      (bit-and 0xFF)))
+
+(defn combine-bytes [msb lsb]
+  (-> msb
+      (bit-shift-left 8)
+      (bit-or lsb)))
+
+(defn pop16
+  [system]
+  (let [stack (bit-or 0x100 (:sp system))
+        msb (get-in system [:mem stack])
+        lsb (get-in system [:mem (dec stack)])]
+    (combine-bytes msb lsb)))
+
+(defn push16 [system value]
+  (let [msb (most-significant-byte value)
+        lsb (bit-and 0xFF value)
+        top (bit-or (:sp system) 0x100)
+        top-1 (dec (bit-or (:sp system) 0x100))]
+    (-> system
+        (assoc-in [:mem top] msb)
+        (assoc-in [:mem top-1] lsb)
+        (update :sp (fn [sp] (bit-and 0xFF (- sp 2)))))))
+
+(defn read16
+  [system address]
+  (let [mem (:mem system)
+        lsb (get mem address)
+        msb (get mem (inc address))]
+    (combine-bytes msb lsb)))
 
 (defn write16 [system address value]
-  (let [msb (-> value
-                (bit-shift-right 8)
-                (bit-and 0xFF))
+  (let [msb (most-significant-byte value)
         lsb (bit-and value 0xFF)]
     (-> system
         (assoc-in [:mem address] lsb)
         (assoc-in [:mem (bit-and 0xFFFF (inc address))] msb))))
 
-(defn read8 [system address]
+(defn read8
+  "Reads an 8-bit value from a given address (or accumulator)"
+  [system address]
   (case address
     :accumulator (:acc system)
     (get-in system [:mem address])))

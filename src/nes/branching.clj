@@ -1,4 +1,5 @@
-(ns nes.branching)
+(ns nes.branching
+  (:require [nes.memory :as mem]))
 
 (defn jmp-opfn
   [system m]
@@ -50,3 +51,17 @@
 (defn bvs-opfn
   [system m]
   (bcc system m (:overflow-flag system)))
+
+(defn jsr-opfn
+  [system addr]
+  (-> system
+      (mem/push16 (+ 2 (:pc system)))
+      (assoc :pc addr)))
+
+(defn rts-opfn
+  [system _]
+  (let [value (mem/read16 system (bit-or 0x100 (dec (:sp system))))]
+    (-> system
+        (assoc :pc (inc value))
+        (update :sp #(+ % 2)))))
+

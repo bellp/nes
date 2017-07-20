@@ -110,6 +110,27 @@
 (fact "write16 can write a 16-bit value to memory"
   (let [system (-> (new-system)
                    (write16 0x1000 0xABCD))]
-   (get-in system [:mem 0x1000]) => 0xCD
-   (get-in system [:mem 0x1001]) => 0xAB))
+     (get-in system [:mem 0x1000]) => 0xCD
+     (get-in system [:mem 0x1001]) => 0xAB))
 
+(fact "read16 reads a 16-bit value from a given address"
+  (-> (new-system)
+      (assoc-in [:mem 0x1000] 0x34)
+      (assoc-in [:mem 0x1001] 0x12)
+      (read16 0x1000)) => 0x1234)
+
+(fact "push16 pushes a 16-bit value (such as an address) onto the stack"
+  (-> (new-system)
+      (assoc :sp 0xFD)
+      (push16 0x1234)
+      (read8 0x1FD)) => 0x12
+
+  (-> (new-system)
+      (assoc :sp 0xFD)
+      (push16 0x1234)
+      (read8 0x1FC)) => 0x34)
+
+(fact "push16 updates the stack pointer"
+  (-> (new-system)
+      (push16 0x1234)
+      (:sp)) => 0xFD)

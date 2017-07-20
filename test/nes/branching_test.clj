@@ -129,3 +129,34 @@
       (assoc :overflow-flag true)
       (bvs-opfn 0x05)
       (:pc)) => 0x1239)
+
+(fact "JSR pushes current address of the next instruction -1 to the stack"
+    (-> (new-system)
+        (assoc :pc 0x1234)
+        (jsr-opfn 0x2000)
+        (get-in [:mem 0x1FF])) => 0x12
+
+    (-> (new-system)
+        (assoc :pc 0x1234)
+        (jsr-opfn 0x2000)
+        (get-in [:mem 0x1FE])) => 0x36)
+
+(fact "JSR changes the current program counter"
+    (-> (new-system)
+        (assoc :pc 0x1234)
+        (jsr-opfn 0x5555)
+        (:pc)) => 0x5555)
+
+(fact "RTS changes the current program counter to the 16-bit value on the stack + 1"
+    (-> (new-system)
+        (assoc-in [:mem 0x1FC] 0x34)
+        (assoc-in [:mem 0x1FD] 0x12)
+        (assoc :sp 0xFD)
+        (rts-opfn nil)
+        (:pc)) => 0x1235)
+
+(fact "RTS adds 2 to the SP"
+    (-> (new-system)
+        (assoc :sp 0xFD)
+        (rts-opfn nil)
+        (:sp)) => 0xFF)
