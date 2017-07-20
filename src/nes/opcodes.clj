@@ -1,6 +1,7 @@
 (ns nes.opcodes
   (:require [nes.arithmetic :refer :all]
-            [nes.logic :refer :all]))
+            [nes.logic :refer :all]
+            [nes.branching :as branch]))
 
 (def operand-sizes
   "The size of the operand (in bytes) for a given addressing mode"
@@ -108,19 +109,19 @@
                    :address-mode :absolutex
                    :cycles 7}]}
 
-   "BCC" {:function nil
+   "BCC" {:function branch/bcc-opfn
           :mutates-memory false
           :codes [{:opcode 0x90
                    :address-mode :relative
                    :cycles 2}]}
 
-   "BCS" {:function nil
+   "BCS" {:function branch/bcs-opfn
           :mutates-memory false
           :codes [{:opcode 0xB0
                    :address-mode :relative
                    :cycles 2}]}
 
-   "BEQ" {:function nil
+   "BEQ" {:function branch/beq-opfn
           :mutates-memory false
           :codes [{:opcode 0xF0
                    :address-mode :relative
@@ -136,19 +137,19 @@
                    :address-mode :absolute
                    :cycles 4}]}
 
-   "BMI" {:function nil
+   "BMI" {:function branch/bmi-opfn
           :mutates-memory false
           :codes [{:opcode 0x30
                    :address-mode :relative
                    :cycles 2}]}
 
-   "BNE" {:function nil
+   "BNE" {:function branch/bne-opfn
           :mutates-memory false
           :codes [{:opcode 0xD0
                    :address-mode :relative
                    :cycles 2}]}
 
-   "BPL" {:function nil
+   "BPL" {:function branch/bpl-opfn
           :mutates-memory false
           :codes [{:opcode 0x10
                    :address-mode :relative
@@ -160,13 +161,13 @@
                    :address-mode :implied
                    :cycles 7}]}
 
-   "BVC" {:function nil
+   "BVC" {:function branch/bvc-opfn
           :mutates-memory false
           :codes [{:opcode 0x50
                    :address-mode :relative
                    :cycles 2}]}
 
-   "BVS" {:function nil
+   "BVS" {:function branch/bvs-opfn
           :mutates-memory false
           :codes [{:opcode 0x70
                    :address-mode :relative
@@ -352,7 +353,7 @@
                    :address-mode :implied
                    :cycles 2}]}
 
-   "JMP" {:function nil
+   "JMP" {:function branch/jmp-opfn
           :mutates-memory false
           :codes [{:opcode 0x4C
                    :address-mode :absolute
