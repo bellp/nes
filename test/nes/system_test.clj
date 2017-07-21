@@ -81,4 +81,3 @@
       (assoc :pc 0x0000)
       (execute)
       (:cycle-count)) => 5)
-

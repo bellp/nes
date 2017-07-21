@@ -11,16 +11,15 @@
 
     :carry-flag    false
     :zero-flag     false
-    :overflow-flag false
     :int-flag      false
     :dec-flag      false
-    :unused-flag   true
     :brk-flag      false
+    :unused-flag   true
+    :overflow-flag false
     :sign-flag     false
 
     :cycle-count   0
     :mem          (new-memory)})
-
 
 (defn update-pc
   [system instruction]

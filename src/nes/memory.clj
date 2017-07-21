@@ -23,6 +23,11 @@
         lsb (get-in system [:mem (dec stack)])]
     (combine-bytes msb lsb)))
 
+(defn push8 [system value]
+  (-> system
+      (assoc-in [:mem (bit-or 0x100 (:sp system))] value)
+      (update :sp dec)))
+
 (defn push16 [system value]
   (let [msb (most-significant-byte value)
         lsb (bit-and 0xFF value)

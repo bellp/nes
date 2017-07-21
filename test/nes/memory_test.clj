@@ -132,3 +132,16 @@
   (-> (new-system)
       (push16 0x1234)
       (:sp)) => 0xFD)
+
+(fact "push8 pushes an 8-bit value onto the stack"
+  (-> (new-system)
+      (assoc :sp 0xFD)
+      (push8 0x33)
+      (read8 0x1FD)) => 0x33)
+
+(fact "push8 updates the stack pointer by one"
+  (-> (new-system)
+      (assoc :sp 0xFD)
+      (push8 0x33)
+      (:sp)) => 0xFC)
+
