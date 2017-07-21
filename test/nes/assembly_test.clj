@@ -109,7 +109,13 @@
       (get-current-instruction)
       (:operand)) => 0x3344)
 
-(fact "compile-statement updates PC after compiling instruction with a 2-byte operand "
+(fact "compile-statement updates PC after compiling instruction with a 2-byte operand"
+  (-> (new-system)
+      (compile-statement "ADC $3344")
+      (compile-statement "ADC $3344")
+      (:pc)) => 0x0006)
+
+(fact "compile-statement updates PC after compiling two instructions with 2-byte operands"
   (-> (new-system)
       (compile-statement "ADC $3344")
       (:pc)) => 0x0003)
@@ -144,6 +150,14 @@
   (-> (new-system)
       (compile-statement "INX")
       (:pc)) => 0x0001)
+
+(fact "compile-statement can be chained together twice to add two instructions"
+  (let [system (-> (new-system)
+                   (compile-statement "INX")
+                   (compile-statement "INY"))]
+    (get-in system [:mem 0x00]) => 0xE8
+    (get-in system [:mem 0x01]) => 0xC8))
+
 
 
 

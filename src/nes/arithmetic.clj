@@ -69,16 +69,16 @@
 (defn inc-opfn [system addr]
   (change-memory-by-one system inc addr))
 
-(defn dex-opfn [system]
+(defn dex-opfn [system _]
   (change-register-by-one system dec :x))
 
-(defn dey-opfn [system]
+(defn dey-opfn [system _]
   (change-register-by-one system dec :y))
 
-(defn inx-opfn [system]
+(defn inx-opfn [system _]
   (change-register-by-one system inc :x))
 
-(defn iny-opfn [system]
+(defn iny-opfn [system _]
   (change-register-by-one system inc :y))
 
 (defn cmp-reg [system reg8 m]

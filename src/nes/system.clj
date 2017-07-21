@@ -21,6 +21,7 @@
     :cycle-count   0
     :mem          (new-memory)})
 
+
 (defn update-pc
   [system instruction]
   (update system :pc
@@ -31,11 +32,30 @@
           (inc)
           (+ pc)))))
 
+(defn- cross-boundary-cycle
+  [system instruction resolved-address]
+  (let [operand (:operand instruction)
+        mode (:address-mode instruction)
+        address
+          (case mode
+            :absolutex operand
+            :absolutey operand
+            :indirecty (mem/indirect-address (:mem system) operand)
+            nil)]
+    (if (and address
+             (not (mem/same-page? resolved-address address)))
+      1
+      0)))
+
 (defn- execute-opfn [system instruction]
-  (let [opfn (:function instruction)]
+  (let [opfn (:function instruction)
+        resolved-address (resolve-address system instruction)]
     (if (:mutates-memory instruction)
        (opfn system (resolve-address system instruction))
-       (opfn system (read-from-memory system instruction)))))
+       (let [extra-tick (cross-boundary-cycle system instruction resolved-address)]
+         (-> system
+            (opfn (read-from-memory system instruction resolved-address))
+            (update :cycle-count #(+ % extra-tick)))))))
 
 (defn read-operand
   "Gets an operand form a given address given a
@@ -54,9 +74,9 @@
         instruction (get instruction-set opcode)
         operand-size ((:address-mode instruction) operand-sizes)
         operand (read-operand
-                 (:mem system)
-                 (inc (:pc system))
-                 operand-size)]
+                  (:mem system)
+                  (inc (:pc system))
+                  operand-size)]
     (assoc instruction :operand operand)))
 
 (defn execute
@@ -72,3 +92,11 @@
         (execute-opfn instruction)
         (update :cycle-count #(+ cycles %))
         (update-pc instruction))))
+
+(defn run
+  [system iterations]
+  (loop [sys system count 0]
+    (if (or (not (= iterations :forever))
+            (>= count iterations))
+      sys
+      (recur (execute sys) (inc count)))))

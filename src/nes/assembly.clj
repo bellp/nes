@@ -91,6 +91,7 @@
         address-mode (:address-mode instruction-info)
         operand (:operand instruction-info)
         pc (:pc system)]
+    (if (nil? opcode) (println (format "ERROR: Unable to compile statement '%s'" statement)))
     (if (nil? address-mode) (println (format "ERROR: Unknown address mode for %s" statement)))
     (-> system
         (write8 pc opcode)

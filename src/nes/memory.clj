@@ -115,13 +115,12 @@
 
 (defn read-from-memory
   "Reads a value from memory for a given instruction."
-  [system instruction]
+  [system instruction address]
   (let [mode (:address-mode instruction)]
     (case mode
       :accumulator nil
       :implied nil
       :relative (:operand instruction)
       :immediate (:operand instruction)
-        (->> (resolve-address system instruction)
-            (get (:mem system))))))
+      (get (:mem system) address))))
 

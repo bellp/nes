@@ -22,4 +22,6 @@
         (bit-digit (:dec-flag system))
         (bit-digit (:int-flag system))
         (bit-digit (:zero-flag system))
-        (bit-digit (:carry-flag system)))))
+        (bit-digit (:carry-flag system))))
+  system)
+

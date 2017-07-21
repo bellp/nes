@@ -6,9 +6,8 @@
 
 (fact "address calculates zeropage addresses"
   (-> (new-system)
-      (assoc-in [:mem 0x3F] 0x11)
-      (read-from-memory { :address-mode :zeropage
-                         :operand 0x3F })) => 0x11)
+      (resolve-address {:address-mode :zeropage
+                        :operand 0x3F })) => 0x3F)
 
 (fact "address calculates zeropage-reg8 addressing modes"
    (zeropage-reg8 0x01 0x01) => 0x02
@@ -16,9 +15,8 @@
 
 (fact "address calculates absolute addresses"
   (-> (new-system)
-      (assoc-in [:mem 0x1234] 0x33)
-      (read-from-memory { :address-mode :absolute
-                         :operand 0x1234 })) => 0x33)
+      (resolve-address {:address-mode :absolute
+                        :operand 0x1234 })) => 0x1234)
 
 (fact "address calculates absolute-reg16 addresses"
    (absolute-reg16 0x0001 0x0001) => 0x0002
