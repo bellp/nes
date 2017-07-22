@@ -1,6 +1,6 @@
 (ns nes.status
-  (:require [nes.memory :as mem]))
-
+  (:require [nes.memory :as mem]
+            [nes.debug :as debug]))
 
 (defn get-status [system]
   (let [set-flag (fn [status flag pos]
@@ -14,6 +14,17 @@
         (set-flag (:unused-flag system) 5)
         (set-flag (:overflow-flag system) 6)
         (set-flag (:sign-flag system) 7))))
+
+(defn update-status [system sr]
+  (-> system
+      (assoc :carry-flag (bit-test sr 0))
+      (assoc :zero-flag (bit-test sr 1))
+      (assoc :int-flag (bit-test sr 2))
+      (assoc :dec-flag (bit-test sr 3))
+      (assoc :brk-flag (bit-test sr 4))
+      (assoc :unused-flag (bit-test sr 5))
+      (assoc :overflow-flag (bit-test sr 6))
+      (assoc :sign-flag (bit-test sr 7))))
 
 (defn clc-opfn [system _]
   (assoc system :carry-flag false))
@@ -46,5 +57,10 @@
       (mem/push8 (get-status system))
       (assoc :pc (mem/read16 system 0xFFFE))))
 
-
-
+(defn rti-opfn [system _]
+  (let [sr-address (bit-or 0x100 (+ (:sp system) 3))
+        pc-address (bit-or 0x100 (inc (:sp system)))]
+    (-> system
+        (update-status (mem/read8 system sr-address))
+        (assoc :pc (mem/read16 system pc-address))
+        (update :sp #(+ % 3)))))

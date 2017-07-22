@@ -1,7 +1,8 @@
 (ns nes.opcodes
   (:require [nes.arithmetic :refer :all]
-            [nes.logic :refer :all]
-            [nes.branching :as branch]))
+            [nes.logic :as logic]
+            [nes.branching :as branch]
+            [nes.status :as status]))
 
 (def operand-sizes
   "The size of the operand (in bytes) for a given addressing mode"
@@ -53,7 +54,7 @@
                    :address-mode :indirecty
                    :cycles 5}]}
 
-   "AND" {:function and-opfn
+   "AND" {:function logic/and-opfn
           :mutates-memory false
           :codes [{:opcode 0x29
                    :address-mode :immediate
@@ -87,7 +88,7 @@
                    :address-mode :indirecty
                    :cycles 5}]}
 
-   "ASL" {:function asl-opfn
+   "ASL" {:function logic/asl-opfn
           :mutates-memory true
           :codes [{:opcode 0x0A
                    :address-mode :accumulator
@@ -127,7 +128,7 @@
                    :address-mode :relative
                    :cycles 2}]}
 
-   "BIT" {:function bit-opfn
+   "BIT" {:function logic/bit-opfn
           :mutates-memory false
           :codes [{:opcode 0x24
                    :address-mode :zeropage
@@ -155,7 +156,7 @@
                    :address-mode :relative
                    :cycles 2}]}
 
-   "BRK" {:function nil
+   "BRK" {:function status/brk-opfn
           :mutates-memory false
           :codes [{:opcode 0x00
                    :address-mode :implied
@@ -173,25 +174,25 @@
                    :address-mode :relative
                    :cycles 2}]}
 
-   "CLC" {:function nil
+   "CLC" {:function status/clc-opfn
           :mutates-memory false
           :codes [{:opcode 0x18
                    :address-mode :implied
                    :cycles 2}]}
 
-   "CLD" {:function nil
+   "CLD" {:function status/cld-opfn
           :mutates-memory false
           :codes [{:opcode 0xD8
                    :address-mode :implied
                    :cycles 2}]}
 
-   "CLI" {:function nil
+   "CLI" {:function status/cli-opfn
           :mutates-memory false
           :codes [{:opcode 0x58
                    :address-mode :implied
                    :cycles 2}]}
 
-   "CLV" {:function nil
+   "CLV" {:function status/clv-opfn
           :mutates-memory false
           :codes [{:opcode 0xB8
                    :address-mode :implied
@@ -289,7 +290,7 @@
                    :address-mode :implied
                    :cycles 2}]}
 
-   "EOR" {:function eor-opfn
+   "EOR" {:function logic/eor-opfn
           :mutates-memory false
           :codes [{:opcode 0x49
                    :address-mode :immediate
@@ -447,7 +448,7 @@
                    :address-mode :absolutex
                    :cycles 4}]}
 
-   "LSR" {:function nil
+   "LSR" {:function logic/lsr-opfn
           :mutates-memory true
           :codes [{:opcode 0x4A
                    :address-mode :accumulator
@@ -469,13 +470,13 @@
                    :address-mode :absolutex
                    :cycles 7}]}
 
-   "NOP" {:function nil
+   "NOP" {:function status/nop-opfn
           :mutates-memory false
           :codes [{:opcode 0xEA
                    :address-mode :implied
                    :cycles 2}]}
 
-   "ORA" {:function ora-opfn
+   "ORA" {:function logic/ora-opfn
           :mutates-memory false
           :codes [{:opcode 0x09
                    :address-mode :immediate
@@ -533,7 +534,7 @@
                    :address-mode :implied
                    :cycles 4}]}
 
-   "ROL" {:function nil
+   "ROL" {:function logic/rol-opfn
           :mutates-memory true
           :codes [{:opcode 0x2A
                    :address-mode :accumulator
@@ -555,7 +556,7 @@
                    :address-mode :absolutex
                    :cycles 7}]}
 
-   "ROR" {:function nil
+   "ROR" {:function logic/ror-opfn
           :mutates-memory true
           :codes [{:opcode 0x6A
                    :address-mode :accumulator
@@ -577,7 +578,7 @@
                    :address-mode :absolutex
                    :cycles 7}]}
 
-   "RTI" {:function nil
+   "RTI" {:function status/rti-opfn
           :mutates-memory false
           :codes [{:opcode 0x40
                    :address-mode :implied
@@ -623,19 +624,19 @@
                    :address-mode :indirecty
                    :cycles 5}]}
 
-   "SEC" {:function nil
+   "SEC" {:function status/sec-opfn
           :mutates-memory false
           :codes [{:opcode 0x38
                    :address-mode :implied
                    :cycles 2}]}
 
-   "SED" {:function nil
+   "SED" {:function status/sed-opfn
           :mutates-memory false
           :codes [{:opcode 0xF8
                    :address-mode :implied
                    :cycles 2}]}
 
-   "SEI" {:function nil
+   "SEI" {:function status/sei-opfn
           :mutates-memory false
           :codes [{:opcode 0x78
                    :address-mode :implied

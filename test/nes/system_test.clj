@@ -81,3 +81,13 @@
       (assoc :pc 0x0000)
       (execute)
       (:cycle-count)) => 5)
+
+
+; (fact "perf test"
+;   (let [system (-> (new-system)
+;                    (compile-statement "ADC ($10),Y")
+;                    (assoc :pc 0x0000))]
+;     (time
+;       (dotimes [n 600000] (fn [_] (execute system))))))
+
+
