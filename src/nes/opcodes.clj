@@ -356,7 +356,7 @@
                    :cycles 2}]}
 
    "JMP" {:function branch/jmp-opfn
-          :mutates-memory false
+          :mutates-memory true
           :codes [{:opcode 0x4C
                    :address-mode :absolute
                    :cycles 3}

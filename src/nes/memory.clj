@@ -105,6 +105,7 @@
     (case mode
       :accumulator :accumulator
       :immediate   nil
+      :implied     nil
       :relative    operand
       :zeropage    operand
       :zeropagex   (zeropage-reg8 operand (:x system))

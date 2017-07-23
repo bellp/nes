@@ -1,6 +1,7 @@
 (ns nes.system
   (:use [nes.opcodes]
-        [nes.memory :as mem]))
+        [nes.memory :as mem]
+        [nes.debug :as debug]))
 
 (defn new-system []
   { :acc           0x00
@@ -23,12 +24,20 @@
 
 (defn update-pc
   [system instruction]
+  ; (debug/inspect instruction)
+  ; (debug/show-system system)
+
   (update system :pc
     (fn [pc]
+      (println pc)
       (-> instruction
           (:address-mode)
+
           (operand-sizes)
+
           (inc)
+          (inspect)
+
           (+ pc)))))
 
 (defn- cross-boundary-cycle
@@ -48,7 +57,9 @@
 
 (defn- execute-opfn [system instruction]
   (let [opfn (:function instruction)
-        resolved-address (resolve-address system instruction)]
+        resolved-address (resolve-address system instruction)
+        _ (println (str "opfn: " opfn))
+        _ (println (str "resolved-address: " resolved-address))]
     (if (:mutates-memory instruction)
        (opfn system (resolve-address system instruction))
        (let [extra-tick (cross-boundary-cycle system instruction resolved-address)]
@@ -70,7 +81,10 @@
 (defn get-current-instruction
   [system]
   (let [opcode (get (:mem system) (:pc system))
+        _ (println (format "pc: %04X" (:pc system)))
+        _ (println (format "opcode %x" opcode))
         instruction (get instruction-set opcode)
+        _ (println instruction)
         operand-size ((:address-mode instruction) operand-sizes)
         operand (read-operand
                   (:mem system)
@@ -88,14 +102,17 @@
         instruction (get-current-instruction system)
         cycles (:cycles instruction)]
     (-> system
+        (debug/show-system)
         (execute-opfn instruction)
+        (debug/show-system)
         (update :cycle-count #(+ cycles %))
+        (debug/show-system)
         (update-pc instruction))))
 
 (defn run
   [system iterations]
   (loop [sys system count 0]
-    (if (or (not (= iterations :forever))
-            (>= count iterations))
+    (if (and (not (= iterations :forever))
+             (>= count iterations))
       sys
       (recur (execute sys) (inc count)))))
