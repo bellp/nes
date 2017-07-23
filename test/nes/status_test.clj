@@ -135,19 +135,19 @@
       (:pc)) => 0x1234)
 
 (fact "RTI pulls the status register off the stack"
-    (-> (new-system)
-        (mem/push8 0xA1)
-        (mem/push16 0x1234)
-        (rti-opfn nil)
-        ; (debug/show-system)
-        (get-status)) => 0xA1)
+  (-> (new-system)
+      (mem/push8 0xA1)
+      (mem/push16 0x1234)
+      (rti-opfn nil)
+      ; (debug/show-system)
+      (get-status)) => 0xA1)
 
 (fact "RTI pulls the return address off the stack"
-    (-> (new-system)
-        (mem/push8 0xA1)
-        (mem/push16 0x1234)
-        (rti-opfn nil)
-        (:pc)) => 0x1234)
+  (-> (new-system)
+      (mem/push8 0xA1)
+      (mem/push16 0x1234)
+      (rti-opfn nil)
+      (:pc)) => 0x1234)
 
 (fact "RTI increments the SP by 3"
   (-> (new-system)
@@ -155,3 +155,36 @@
       (rti-opfn nil)
       (:sp)) => 0xFF)
 
+(fact "PLA pulls the top byte off the stack and places it in the accumulator"
+  (-> (new-system)
+      (mem/push8 0x3F)
+      (pla-opfn nil)
+      (:acc)) => 0x3F)
+
+(fact "PLA sets the zero flag iff the value pulled is zero"
+  (-> (new-system)
+      (mem/push8 0x00)
+      (pla-opfn nil)
+      (:zero-flag)) => true
+
+  (-> (new-system)
+      (mem/push8 0x3F)
+      (pla-opfn nil)
+      (:zero-flag)) => false)
+
+(fact "PLA sets the sign flag iff the value pulled has bit 7 set"
+  (-> (new-system)
+      (mem/push8 0x80)
+      (pla-opfn nil)
+      (:sign-flag)) => true
+
+  (-> (new-system)
+      (mem/push8 0x3F)
+      (pla-opfn nil)
+      (:sign-flag)) => false)
+
+(fact "PLP sets the flags from the value pulled off the stack"
+  (-> (new-system)
+      (mem/push8 0x81)
+      (plp-opfn nil)
+      (get-status)) => 0x81)

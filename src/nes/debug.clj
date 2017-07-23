@@ -1,5 +1,12 @@
 (ns nes.debug)
 
+(defn inspect [x]
+  (let [fmt (if (integer? x)
+              "%X"
+              "%s")]
+    (println (format fmt x))
+    x))
+
 (defn bit-digit
   [b]
   (if b "1" "0"))

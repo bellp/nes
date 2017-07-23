@@ -64,3 +64,31 @@
         (update-status (mem/read8 system sr-address))
         (assoc :pc (mem/read16 system pc-address))
         (update :sp #(+ % 3)))))
+
+(defn pha-opfn
+  [system _]
+  (mem/push8 system (:acc system)))
+
+(defn php-opfn
+  [system _]
+  (mem/push8 system (get-status system)))
+
+(defn pla-opfn
+  [system _]
+  (let [value (mem/read-last-pushed-byte system)]
+    (-> system
+        (assoc :acc value)
+        (assoc :zero-flag (= value 0))
+        (assoc :sign-flag (bit-test value 7))
+        (update :sp inc))))
+
+(defn plp-opfn
+  [system _]
+  (let [value (mem/read-last-pushed-byte system)]
+    (-> system
+        (update-status value)
+        (update :sp inc))))
+
+
+
+

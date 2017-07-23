@@ -2,7 +2,8 @@
   (:require [nes.arithmetic :refer :all]
             [nes.logic :as logic]
             [nes.branching :as branch]
-            [nes.status :as status]))
+            [nes.status :as status]
+            [nes.transfer :as xfer]))
 
 (def operand-sizes
   "The size of the operand (in bytes) for a given addressing mode"
@@ -370,7 +371,7 @@
                    :address-mode :absolute
                    :cycles 6}]}
 
-   "LDA" {:function nil
+   "LDA" {:function xfer/lda-opfn
           :mutates-memory false
           :codes [{:opcode 0xA9
                    :address-mode :immediate
@@ -404,7 +405,7 @@
                    :address-mode :indirecty
                    :cycles 5}]}
 
-   "LDX" {:function nil
+   "LDX" {:function xfer/ldx-opfn
           :mutates-memory false
           :codes [{:opcode 0xA2
                    :address-mode :immediate
@@ -426,7 +427,7 @@
                    :address-mode :absolutey
                    :cycles 4}]}
 
-   "LDY" {:function nil
+   "LDY" {:function xfer/ldy-opfn
           :mutates-memory false
           :codes [{:opcode 0xA0
                    :address-mode :immediate
@@ -510,25 +511,25 @@
                    :address-mode :indirecty
                    :cycles 5}]}
 
-   "PHA" {:function nil
+   "PHA" {:function status/pha-opfn
           :mutates-memory false
           :codes [{:opcode 0x48
                    :address-mode :implied
                    :cycles 3}]}
 
-   "PHP" {:function nil
+   "PHP" {:function status/php-opfn
           :mutates-memory false
           :codes [{:opcode 0x08
                    :address-mode :implied
                    :cycles 3}]}
 
-   "PLA" {:function nil
+   "PLA" {:function status/pla-opfn
           :mutates-memory false
           :codes [{:opcode 0x68
                    :address-mode :implied
                    :cycles 4}]}
 
-   "PLP" {:function nil
+   "PLP" {:function status/plp-opfn
           :mutates-memory false
           :codes [{:opcode 0x28
                    :address-mode :implied
@@ -642,7 +643,7 @@
                    :address-mode :implied
                    :cycles 2}]}
 
-   "STA" {:function nil
+   "STA" {:function xfer/sta-opfn
           :mutates-memory true
           :codes [{:opcode 0x85
                    :address-mode :zeropage
@@ -672,7 +673,7 @@
                    :address-mode :indirecty
                    :cycles 6}]}
 
-   "STX" {:function nil
+   "STX" {:function xfer/stx-opfn
           :mutates-memory true
           :codes [{:opcode 0x86
                    :address-mode :zeropage
@@ -686,7 +687,7 @@
                    :address-mode :absolute
                    :cycles 4}]}
 
-   "STY" {:function nil
+   "STY" {:function xfer/sty-opfn
           :mutates-memory true
           :codes [{:opcode 0x84
                    :address-mode :zeropage
@@ -700,37 +701,37 @@
                    :address-mode :absolute
                    :cycles 4}]}
 
-   "TAX" {:function nil
-          :mutates-memory true
+   "TAX" {:function xfer/tax-opfn
+          :mutates-memory false
           :codes [{:opcode 0xAA
                    :address-mode :implied
                    :cycles 2}]}
 
-   "TAY" {:function nil
-          :mutates-memory true
+   "TAY" {:function xfer/tay-opfn
+          :mutates-memory false
           :codes [{:opcode 0xA8
                    :address-mode :implied
                    :cycles 2}]}
 
-   "TSX" {:function nil
-          :mutates-memory true
+   "TSX" {:function xfer/tsx-opfn
+          :mutates-memory false
           :codes [{:opcode 0xBA
                    :address-mode :implied
                    :cycles 2}]}
 
-   "TXA" {:function nil
+   "TXA" {:function xfer/txa-opfn
           :mutates-memory false
           :codes [{:opcode 0x8A
                    :address-mode :implied
                    :cycles 2}]}
 
-   "TXS" {:function nil
+   "TXS" {:function xfer/txs-opfn
           :mutates-memory false
           :codes [{:opcode 0x9A
                    :address-mode :implied
                    :cycles 2}]}
 
-   "TYA" {:function nil
+   "TYA" {:function xfer/tya-opfn
           :mutates-memory false
           :codes [{:opcode 0x98
                    :address-mode :implied

@@ -145,6 +145,8 @@
       (push8 0x33)
       (:sp)) => 0xFC)
 
-
-
-
+(fact "read-last-pushed-byte reads the top byte on the stack"
+  (-> (new-system)
+      (assoc :sp 0xFE)
+      (assoc-in [:mem 0x1FF] 0x3F)
+      (read-last-pushed-byte)) => 0x3F)

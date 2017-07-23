@@ -1,4 +1,5 @@
-(ns nes.memory)
+(ns nes.memory
+  (:require [nes.debug :as debug]))
 
 (defn new-memory
   "Creates a new 64kb memory space."
@@ -16,12 +17,9 @@
       (bit-shift-left 8)
       (bit-or lsb)))
 
-(defn pop16
+(defn read-last-pushed-byte
   [system]
-  (let [stack (bit-or 0x100 (:sp system))
-        msb (get-in system [:mem stack])
-        lsb (get-in system [:mem (dec stack)])]
-    (combine-bytes msb lsb)))
+  (get-in system [:mem (bit-or 0x100 (inc (:sp system)))]))
 
 (defn push8 [system value]
   (-> system
