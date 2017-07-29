@@ -52,8 +52,7 @@
 (defn brk-opfn [system _]
   (-> system
       (mem/push16 (:pc system))
-      (assoc :brk-flag true)
-      (mem/push8 (get-status system))
+      (mem/push8 (bit-or 0x10 (get-status system)))
       (assoc :pc (mem/read16 system 0xFFFE))))
 
 (defn rti-opfn [system _]
@@ -70,7 +69,7 @@
 
 (defn php-opfn
   [system _]
-  (mem/push8 system (get-status system)))
+  (mem/push8 system (bit-or 0x30 (get-status system))))
 
 (defn pla-opfn
   [system _]

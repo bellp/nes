@@ -132,14 +132,16 @@
 
 (fact "JSR pushes current address of the next instruction -1 to the stack"
     (-> (new-system)
+        (assoc :sp 0xFF)
         (assoc :pc 0x1234)
         (jsr-opfn 0x2000)
         (get-in [:mem 0x1FF])) => 0x12
 
     (-> (new-system)
+        (assoc :sp 0xFF)
         (assoc :pc 0x1234)
         (jsr-opfn 0x2000)
-        (get-in [:mem 0x1FE])) => 0x36)
+        (get-in [:mem 0x1FE])) => 0x33)
 
 (fact "JSR changes the current program counter"
     (-> (new-system)
@@ -149,11 +151,11 @@
 
 (fact "RTS changes the current program counter to the 16-bit value on the stack + 1"
     (-> (new-system)
-        (assoc-in [:mem 0x1FC] 0x34)
+        (assoc-in [:mem 0x1FC] 0x33)
         (assoc-in [:mem 0x1FD] 0x12)
-        (assoc :sp 0xFD)
+        (assoc :sp 0xFB)
         (rts-opfn nil)
-        (:pc)) => 0x1235)
+        (:pc)) => 0x1234)
 
 (fact "RTS adds 2 to the SP"
     (-> (new-system)

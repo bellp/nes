@@ -54,9 +54,9 @@
     (:acc system)
     (:x system)
     (:y system)
-    (status/get-status system)
+    (:p system)
     (:sp system)
-    (rem (* 3 (:cyc system)) 341)))
+    (:cyc system)))
 
 
 (defn- hexstr->int
@@ -119,16 +119,15 @@
                               :cyc (rem (* 3 (:cycle-count s)) 341)
                               :opcode (:opcode instruction)
                               :operand (:operand instruction)
-                              :operand-size ((:address-mode instruction) op/operand-sizes)}]
+                              :operand-size ((:address-mode instruction) op/operand-sizes)}
 
-        ; (println converted-system)
-        ; (println (log row))
+            _ (println (format "Line %d: %s" (inc row) (sys->text converted-system)))]
+
         (if (not (= converted-system (log row)))
           (do
             (println (format "On line %d:" (inc row)))
             (println (format "Expected : %s" (sys->text (log row))))
             (println (format "Actual   : %s" (sys->text converted-system))))
-
           (recur (sys/execute s) (inc row)))))))
 
 
@@ -136,40 +135,40 @@
 
 
 
-(fact "Can parse lines" :integration
-  (let [states (parse-nestest-file "nestest.log")]
-    (first states) => {:pc 0xC000
-                        :opcode 0x4C
-                        :operand 0xC5F5
-                        :acc 0x00
-                        :x 0x00
-                        :y 0x00
-                        :p 0x24
-                        :sp 0xFD
-                        :cyc 0
-                        :operand-size 2}
+; (fact "Can parse lines" :integration
+;   (let [states (parse-nestest-file "nestest.log")]
+;     (first states) => {:pc 0xC000
+;                         :opcode 0x4C
+;                         :operand 0xC5F5
+;                         :acc 0x00
+;                         :x 0x00
+;                         :y 0x00
+;                         :p 0x24
+;                         :sp 0xFD
+;                         :cyc 0
+;                         :operand-size 2}
 
-    (states 6) => {:pc 0xC72D
-                   :opcode 0xEA
-                   :operand nil
-                   :acc 0x00
-                   :x 0x00
-                   :y 0x00
-                   :p 0x26
-                   :sp 0xFB
-                   :cyc 60
-                   :operand-size 0}
+;     (states 6) => {:pc 0xC72D
+;                    :opcode 0xEA
+;                    :operand nil
+;                    :acc 0x00
+;                    :x 0x00
+;                    :y 0x00
+;                    :p 0x26
+;                    :sp 0xFB
+;                    :cyc 60
+;                    :operand-size 0}
 
-    (states 8) => {:pc 0xC72F
-                   :opcode 0xB0
-                   :operand 0x04
-                   :acc 0x00
-                   :x 0x00
-                   :y 0x00
-                   :p 0x27
-                   :sp 0xFB
-                   :cyc 72
-                   :operand-size 1}))
+;     (states 8) => {:pc 0xC72F
+;                    :opcode 0xB0
+;                    :operand 0x04
+;                    :acc 0x00
+;                    :x 0x00
+;                    :y 0x00
+;                    :p 0x27
+;                    :sp 0xFB
+;                    :cyc 72
+;                    :operand-size 1}))
 
 
 

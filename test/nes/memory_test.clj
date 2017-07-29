@@ -130,6 +130,7 @@
 
 (fact "push16 updates the stack pointer"
   (-> (new-system)
+      (assoc :sp 0xFF)
       (push16 0x1234)
       (:sp)) => 0xFD)
 

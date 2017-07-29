@@ -4,70 +4,66 @@
             [nes.system :refer :all]
             [nes.memory :as mem]))
 
+(defn- clear-flags [system]
+  (-> system
+      (assoc :carry-flag false)
+      (assoc :zero-flag false)
+      (assoc :int-flag false)
+      (assoc :dec-flag false)
+      (assoc :brk-flag false)
+      (assoc :unused-flag false)
+      (assoc :overflow-flag false)
+      (assoc :sign-flag false)))
+
 (fact "get-status returns combined values of all 8 flags into one 8-bit value"
     (-> (new-system)
-        (assoc :carry-flag false)
-        (get-status)) => 0x20
-
-    (-> (new-system)
-        (assoc :carry-flag true)
-        (get-status)) => 0x21
-
-    (-> (new-system)
-        (assoc :zero-flag false)
-        (get-status)) => 0x20
-
-    (-> (new-system)
-        (assoc :zero-flag true)
-        (get-status)) => 0x22
-
-    (-> (new-system)
-        (assoc :int-flag false)
-        (get-status)) => 0x20
-
-    (-> (new-system)
-        (assoc :int-flag true)
-        (get-status)) => 0x24
-
-    (-> (new-system)
-        (assoc :dec-flag false)
-        (get-status)) => 0x20
-
-    (-> (new-system)
-        (assoc :dec-flag true)
-        (get-status)) => 0x28
-
-    (-> (new-system)
-        (assoc :brk-flag false)
-        (get-status)) => 0x20
-
-    (-> (new-system)
-        (assoc :brk-flag true)
-        (get-status)) => 0x30
-
-    (-> (new-system)
-        (assoc :unused-flag false)
+        (clear-flags)
         (get-status)) => 0x00
 
     (-> (new-system)
+        (clear-flags)
+        (assoc :carry-flag true)
+        (get-status)) => 0x01
+
+    (-> (new-system)
+        (clear-flags)
+        (assoc :zero-flag true)
+        (get-status)) => 0x02
+
+    (-> (new-system)
+        (clear-flags)
+        (assoc :int-flag true)
+        (get-status)) => 0x04
+
+    (-> (new-system)
+        (clear-flags)
+        (assoc :dec-flag true)
+        (get-status)) => 0x08
+
+    (-> (new-system)
+        (clear-flags)
+        (assoc :brk-flag true)
+        (get-status)) => 0x10
+
+    (-> (new-system)
+        (clear-flags)
         (assoc :unused-flag true)
         (get-status)) => 0x20
 
     (-> (new-system)
-        (assoc :overflow-flag false)
-        (get-status)) => 0x20
-
-    (-> (new-system)
+        (clear-flags)
         (assoc :overflow-flag true)
-        (get-status)) => 0x60
+        (get-status)) => 0x40
 
     (-> (new-system)
+        (assoc :int-flag false)
         (assoc :sign-flag false)
         (get-status)) => 0x20
 
     (-> (new-system)
+        (clear-flags)
         (assoc :sign-flag true)
-        (get-status)) => 0xA0)
+        (get-status)) => 0x80)
 
 (fact "update-status updates all the flags given an 8-bit status value"
   (-> (new-system)
@@ -115,17 +111,17 @@
 
 (fact "BRK pushes the status register onto the stack"
   (-> (new-system)
+      (clear-flags)
       (assoc :carry-flag true)
       (assoc :sign-flag true)
-      (assoc :unused-flag false)
       (assoc :sp 0xFD)
       (brk-opfn nil)
-      (mem/read8 0x1FB)) => 0x81)
+      (mem/read8 0x1FB)) => 0x91)
 
-(fact "BRK sets the brk flag"
+(fact "BRK does not set the brk flag"
   (-> (new-system)
       (brk-opfn nil)
-      (:brk-flag)) => true)
+      (:brk-flag)) => false)
 
 (fact "BRK sets the PC to the address located at FFFE/FFFF"
   (-> (new-system)
@@ -190,4 +186,4 @@
   (-> (new-system)
       (mem/push8 0x81)
       (plp-opfn nil)
-      (get-status)) => 0x81)
+      (get-status)) => 0xA1) ; Note: PLP doesn't update BRK/UNUSED flags

@@ -18,7 +18,10 @@
 
 (defn read-last-pushed-byte
   [system]
-  (get-in system [:mem (bit-or 0x100 (inc (:sp system)))]))
+  (get-in system [:mem (-> (:sp system)
+                           (inc)
+                           (bit-and 0xFF)
+                           (bit-or 0x100))]))
 
 (defn push8 [system value]
   (-> system

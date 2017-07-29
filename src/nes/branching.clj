@@ -56,13 +56,19 @@
   [system addr]
   ; (println (format "Pushing address %04X onto stack" (:pc system)))
   (-> system
-      (mem/push16 (:pc system))
+      (mem/push16 (dec (:pc system)))
       (assoc :pc addr)))
 
 (defn rts-opfn
   [system _]
-  (let [value (mem/read16 system (bit-or 0x100 (inc (:sp system))))]
-        ; _ (println (format "Pulling address %04X from stack" value))]
+  (let [value (->> (:sp system)
+                   (inc)
+                   (bit-and 0xFF)
+                   (bit-or 0x100)
+                   (mem/read16 system)
+                   (inc))]
+
+        ; _ (println (format "Pulled address %04X from the stack" value))]
     (-> system
         (assoc :pc value)
         (update :sp #(+ % 2)))))
