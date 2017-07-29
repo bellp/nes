@@ -1,43 +1,36 @@
 (ns nes.system
-  (:use [nes.opcodes]
-        [nes.memory :as mem]
-        [nes.debug :as debug]))
+  (:require [nes.opcodes :refer :all]
+            [nes.memory :as mem]
+            [nes.debug :as debug]))
 
 (defn new-system []
   { :acc           0x00
     :x             0x00
     :y             0x00
     :pc            0x0000
-    :sp            0xFF
+    :sp            0xFD
 
     :carry-flag    false
     :zero-flag     false
-    :int-flag      false
+    :int-flag      true
     :dec-flag      false
+
     :brk-flag      false
     :unused-flag   true
     :overflow-flag false
     :sign-flag     false
 
     :cycle-count   0
-    :mem          (new-memory)})
+    :mem          (mem/new-memory)})
 
 (defn update-pc
   [system instruction]
-  ; (debug/inspect instruction)
-  ; (debug/show-system system)
-
   (update system :pc
     (fn [pc]
-      (println pc)
       (-> instruction
           (:address-mode)
-
           (operand-sizes)
-
           (inc)
-          (inspect)
-
           (+ pc)))))
 
 (defn- cross-boundary-cycle
@@ -57,15 +50,13 @@
 
 (defn- execute-opfn [system instruction]
   (let [opfn (:function instruction)
-        resolved-address (resolve-address system instruction)
-        _ (println (str "opfn: " opfn))
-        _ (println (str "resolved-address: " resolved-address))]
+        resolved-address (mem/resolve-address system instruction)]
     (if (:mutates-memory instruction)
-       (opfn system (resolve-address system instruction))
+       (opfn system (mem/resolve-address system instruction))
        (let [extra-tick (cross-boundary-cycle system instruction resolved-address)]
          (-> system
-            (opfn (read-from-memory system instruction resolved-address))
-            (update :cycle-count #(+ % extra-tick)))))))
+             (opfn (mem/read-from-memory system instruction resolved-address))
+             (update :cycle-count #(+ % extra-tick)))))))
 
 (defn read-operand
   "Gets an operand form a given address given a
@@ -74,17 +65,16 @@
   (case size
     0 nil
     1 (get mem addr)
-    2 (combine-bytes
+    2 (mem/combine-bytes
         (get mem (inc addr))
         (get mem addr))))
 
 (defn get-current-instruction
   [system]
   (let [opcode (get (:mem system) (:pc system))
-        _ (println (format "pc: %04X" (:pc system)))
-        _ (println (format "opcode %x" opcode))
         instruction (get instruction-set opcode)
-        _ (println instruction)
+        _ (if (nil? instruction)
+            (println (format "ERROR: opcode %02X does not correspond with a known instruction" opcode)))
         operand-size ((:address-mode instruction) operand-sizes)
         operand (read-operand
                   (:mem system)
@@ -92,22 +82,26 @@
                   operand-size)]
     (assoc instruction :operand operand)))
 
+
+
+(defn- validate-instruction
+  [instruction]
+  ())
+
 (defn execute
   "execute takes a system value and executes the next instruction,
   return a new system. This can be thought as the heart of the CPU
   emulator."
   [system]
   (let [mem (:mem system)
-        opcode (get mem (:pc system))
         instruction (get-current-instruction system)
         cycles (:cycles instruction)]
+        ; _ (debug/show-state system instruction)]
     (-> system
-        (debug/show-system)
+        (update-pc instruction)
         (execute-opfn instruction)
-        (debug/show-system)
-        (update :cycle-count #(+ cycles %))
-        (debug/show-system)
-        (update-pc instruction))))
+        (update :cycle-count #(+ cycles %)))))
+
 
 (defn run
   [system iterations]

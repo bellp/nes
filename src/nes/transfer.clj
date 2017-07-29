@@ -21,19 +21,19 @@
 
 (defn tax-opfn
   [system _]
-  (load-register (:acc system) :x))
+  (load-register system (:acc system) :x))
 
 (defn tay-opfn
   [system _]
-  (load-register (:acc system) :y))
+  (load-register system (:acc system) :y))
 
 (defn tsx-opfn
   [system _]
-  (load-register (:sp system) :x))
+  (load-register system (:sp system) :x))
 
 (defn txa-opfn
   [system _]
-  (load-register (:x system) :acc))
+  (load-register system (:x system) :acc))
 
 (defn txs-opfn
   [system _]
@@ -41,7 +41,7 @@
 
 (defn tya-opfn
   [system _]
-  (load-register (:y system) :acc))
+  (load-register system (:y system) :acc))
 
 (defn store-register [system register addr]
   (assoc-in system [:mem addr] (register system)))

@@ -1,5 +1,4 @@
-(ns nes.memory
-  (:require [nes.debug :as debug]))
+(ns nes.memory)
 
 (defn new-memory
   "Creates a new 64kb memory space."

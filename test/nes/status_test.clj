@@ -2,8 +2,7 @@
   (:require [midje.sweet :refer :all]
             [nes.status :refer :all]
             [nes.system :refer :all]
-            [nes.memory :as mem]
-            [nes.debug :as debug]))
+            [nes.memory :as mem]))
 
 (fact "get-status returns combined values of all 8 flags into one 8-bit value"
     (-> (new-system)
@@ -89,7 +88,7 @@
 
   (-> (new-system)
       (update-status 0x10)
-      (:brk-flag)) => true
+      (:brk-flag)) => false ; NOTE that PLP does not set brk flag
 
   (-> (new-system)
       (assoc :unused-flag false)
@@ -139,7 +138,6 @@
       (mem/push8 0xA1)
       (mem/push16 0x1234)
       (rti-opfn nil)
-      ; (debug/show-system)
       (get-status)) => 0xA1)
 
 (fact "RTI pulls the return address off the stack"
@@ -159,7 +157,12 @@
   (-> (new-system)
       (mem/push8 0x3F)
       (pla-opfn nil)
-      (:acc)) => 0x3F)
+      (:acc)) => 0x3F
+
+  (-> (new-system)
+      (mem/push16 0x1234)
+      (pla-opfn nil)
+      (:acc)) => 0x34)
 
 (fact "PLA sets the zero flag iff the value pulled is zero"
   (-> (new-system)

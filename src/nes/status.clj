@@ -1,6 +1,5 @@
 (ns nes.status
-  (:require [nes.memory :as mem]
-            [nes.debug :as debug]))
+  (:require [nes.memory :as mem]))
 
 (defn get-status [system]
   (let [set-flag (fn [status flag pos]
@@ -21,8 +20,8 @@
       (assoc :zero-flag (bit-test sr 1))
       (assoc :int-flag (bit-test sr 2))
       (assoc :dec-flag (bit-test sr 3))
-      (assoc :brk-flag (bit-test sr 4))
-      (assoc :unused-flag (bit-test sr 5))
+      ; (assoc :brk-flag (bit-test sr 4))
+      (assoc :unused-flag true)
       (assoc :overflow-flag (bit-test sr 6))
       (assoc :sign-flag (bit-test sr 7))))
 

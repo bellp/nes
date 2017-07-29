@@ -54,14 +54,16 @@
 
 (defn jsr-opfn
   [system addr]
+  ; (println (format "Pushing address %04X onto stack" (:pc system)))
   (-> system
-      (mem/push16 (+ 2 (:pc system)))
+      (mem/push16 (:pc system))
       (assoc :pc addr)))
 
 (defn rts-opfn
   [system _]
-  (let [value (mem/read16 system (bit-or 0x100 (dec (:sp system))))]
+  (let [value (mem/read16 system (bit-or 0x100 (inc (:sp system))))]
+        ; _ (println (format "Pulling address %04X from stack" value))]
     (-> system
-        (assoc :pc (inc value))
+        (assoc :pc value)
         (update :sp #(+ % 2)))))
 

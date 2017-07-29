@@ -42,7 +42,10 @@
       (get :overflow-flag)) => true
 
   (-> (perform-adc 0x80 0xFF false)
-      (get :overflow-flag)) => true)
+      (get :overflow-flag)) => true
+
+  (-> (perform-adc 0x7F 0x80 false)
+      (:overflow-flag)) => false)
 
 (fact "ADC sets the zero flag when sum is 0, clears when sum is non-0"
   (-> (perform-adc 0x00 0x01 false)
@@ -101,6 +104,10 @@
   (:acc (perform-sbc 0x03 0x09 false)) => 0xF9
   (:acc (perform-sbc 0x03 0x09 true))  => 0xFA)
 
+(fact "SBC sets the carry flag when not an overflow"
+  (-> (perform-sbc 0x40 0x41 true)
+      (get :carry-flag)) => false)
+
 (fact "SBC sets the overflow flag when sum is negative in 2s compliment"
   (-> (perform-sbc 0x00 0x01 true)
       (get :overflow-flag)) => false
@@ -146,5 +153,9 @@
 
   (-> (new-system)
       (cmp-reg 0x7F 0x80)
-      (:sign-flag)) => true)
+      (:sign-flag)) => true
+
+  (-> (new-system)
+      (cmp-reg 0x40 0x3F)
+      (:sign-flag)) => false)
 

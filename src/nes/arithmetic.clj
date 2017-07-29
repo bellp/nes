@@ -12,26 +12,25 @@
         (assoc :zero-flag (= byte-sum 0))
         (assoc :sign-flag (bit-test byte-sum 7))
         (assoc :overflow-flag
-          (not
-            (=
-              (bit-test byte-sum 7)
-              (bit-test acc 7)))))))
+          (and
+            (= 0 (bit-and 0x80 (bit-xor acc m)))
+            (not (= 0 (bit-and 0x80 (bit-xor acc byte-sum)))))))))
 
 (defn sbc-opfn
   [system m]
-  (let [carry (if (get system :carry-flag) 1 0)
+  (let [carry (if (:carry-flag system) 1 0)
         acc (:acc system)
-        sum (- acc m (bit-flip carry 0))
-        byte-sum (bit-and sum 0xFF)]
+        diff (- acc m (bit-flip carry 0))
+        byte-diff (bit-and diff 0xFF)
+        overflow (and
+                   (not (= 0 (bit-and 0x80 (bit-xor acc m))))
+                   (not (= 0 (bit-and 0x80 (bit-xor acc byte-diff)))))]
     (-> system
-      (assoc :acc byte-sum)
-      (assoc :carry-flag (<= sum 0xFF))
-      (assoc :zero-flag (= byte-sum 0))
-      (assoc :sign-flag (bit-test byte-sum 7))
-      (assoc :overflow-flag
-        (and
-          (bit-test (bit-xor acc m) 7)
-          (bit-test (bit-xor acc byte-sum) 7))))))
+      (assoc :acc byte-diff)
+      (assoc :carry-flag (>= diff 0))
+      (assoc :zero-flag (= byte-diff 0))
+      (assoc :sign-flag (bit-test byte-diff 7))
+      (assoc :overflow-flag overflow))))
 
 (defn change-by-one
     [op value]
@@ -89,10 +88,10 @@
         (assoc :sign-flag (bit-test diff 7)))))
 
 (defn cmp-opfn [system m]
-  (cmp-reg system m (:acc system)))
+  (cmp-reg system (:acc system) m))
 
 (defn cpx-opfn [system m]
-  (cmp-reg system m (:x system)))
+  (cmp-reg system (:x system) m))
 
 (defn cpy-opfn [system m]
-  (cmp-reg system m (:y system)))
+  (cmp-reg system (:y system) m))
