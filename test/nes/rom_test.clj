@@ -130,11 +130,6 @@
           (do
             (recur (sys/execute s) (inc row))))))))
 
-
-
-
-
-
 ; (fact "Can parse lines" :integration
 ;   (let [states (parse-nestest-file "nestest.log")]
 ;     (first states) => {:pc 0xC000

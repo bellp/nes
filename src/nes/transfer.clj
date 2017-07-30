@@ -19,6 +19,12 @@
   [system m]
   (load-register system m :y))
 
+(defn lax-opfn
+  [system m]
+  (-> system
+      (load-register m :acc)
+      (load-register m :x)))
+
 (defn tax-opfn
   [system _]
   (load-register system (:acc system) :x))

@@ -797,7 +797,34 @@
                    :address-mode :immediate
                    :cycles 4}]}
 
-   ; Undocumented. aka *NOP
+   ; Undocumented.
+   "LAX" {:function xfer/lax-opfn
+          :mutates-memory false
+          :codes [{:opcode 0xA7
+                   :address-mode :zeropage
+                   :cycles 3}
+
+                  {:opcode 0xB7
+                   :address-mode :zeropagey
+                   :cycles 4}
+
+                  {:opcode 0xAF
+                   :address-mode :absolute
+                   :cycles 4}
+
+                  {:opcode 0xBF
+                   :address-mode :absolutey
+                   :cycles 4}
+
+                  {:opcode 0xA3
+                   :address-mode :indirectx
+                   :cycles 6}
+
+                  {:opcode 0xB3
+                   :address-mode :indirecty
+                   :cycles 5}]}
+
+   ; Undocumented.
    "SOP" {:function status/nop-opfn
           :mutates-memory false
           :codes [{:opcode 0x1A
