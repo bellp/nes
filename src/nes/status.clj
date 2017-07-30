@@ -56,8 +56,8 @@
       (assoc :pc (mem/read16 system 0xFFFE))))
 
 (defn rti-opfn [system _]
-  (let [sr-address (bit-or 0x100 (+ (:sp system) 3))
-        pc-address (bit-or 0x100 (inc (:sp system)))]
+  (let [sr-address (bit-or 0x100 (inc (:sp system)))
+        pc-address (bit-or 0x100 (+ (:sp system) 2))]
     (-> system
         (update-status (mem/read8 system sr-address))
         (assoc :pc (mem/read16 system pc-address))

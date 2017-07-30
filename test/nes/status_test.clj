@@ -131,15 +131,15 @@
 
 (fact "RTI pulls the status register off the stack"
   (-> (new-system)
-      (mem/push8 0xA1)
       (mem/push16 0x1234)
+      (mem/push8 0xA1)
       (rti-opfn nil)
       (get-status)) => 0xA1)
 
 (fact "RTI pulls the return address off the stack"
   (-> (new-system)
-      (mem/push8 0xA1)
       (mem/push16 0x1234)
+      (mem/push8 0xA1)
       (rti-opfn nil)
       (:pc)) => 0x1234)
 
