@@ -64,16 +64,22 @@
     :accumulator (assoc system :acc (bit-and 0xFF value))
     (assoc-in system [:mem address] (bit-and 0xFF value))))
 
+(defn single-page-read16
+  [mem address]
+  (let [msb (get mem (bit-and (inc address) 0xFF))
+        lsb (get mem (bit-and address 0xFF))]
+    (combine-bytes msb lsb)))
+
 (defn indirect-address
   [mem operand]
-  (let [msb (get mem (bit-and (inc operand) 0xFFFF))
+  (let [msb (get mem (bit-or (bit-and operand 0xFF00) (bit-and (inc operand) 0xFF)))
         lsb (get mem (bit-and operand 0xFFFF))]
     (combine-bytes msb lsb)))
 
 (defn indirect-y
   [system operand]
   (-> (:mem system)
-      (indirect-address operand)
+      (single-page-read16 operand)
       (+ (:y system))
       (bit-and 0xFFFF)))
 
@@ -81,7 +87,7 @@
   [system operand]
   (let [x-offset (bit-and (+ operand (:x system)) 0xFF)]
     (-> (:mem system)
-        (indirect-address x-offset))))
+        (single-page-read16 x-offset))))
 
 (defn zeropage-reg8
   [operand reg]

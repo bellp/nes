@@ -13,10 +13,11 @@
       :immediate   1
       :zeropage    1
       :zeropagex   1
+      :zeropagey   1
       :absolute    2
       :absolutex   2
       :absolutey   2
-      :indirect    1
+      :indirect    2
       :indirectx   1
       :indirecty   1})
 
@@ -735,7 +736,124 @@
           :mutates-memory false
           :codes [{:opcode 0x98
                    :address-mode :implied
-                   :cycles 2}]}})
+                   :cycles 2}]}
+
+   ; Undocumented.
+   "DOP" {:function status/nop-opfn
+          :mutates-memory false
+          :codes [{:opcode 0x04
+                   :address-mode :immediate
+                   :cycles 3}
+
+                  {:opcode 0x14
+                   :address-mode :immediate
+                   :cycles 4}
+
+                  {:opcode 0x34
+                   :address-mode :immediate
+                   :cycles 4}
+
+                  {:opcode 0x44
+                   :address-mode :immediate
+                   :cycles 3}
+
+                  {:opcode 0x54
+                   :address-mode :immediate
+                   :cycles 4}
+
+                  {:opcode 0x64
+                   :address-mode :immediate
+                   :cycles 3}
+
+                  {:opcode 0x74
+                   :address-mode :immediate
+                   :cycles 4}
+
+                  {:opcode 0x80
+                   :address-mode :immediate
+                   :cycles 2}
+
+                  {:opcode 0x82
+                   :address-mode :immediate
+                   :cycles 3}
+
+                  {:opcode 0x89
+                   :address-mode :immediate
+                   :cycles 3}
+
+                  {:opcode 0xC2
+                   :address-mode :immediate
+                   :cycles 3}
+
+                  {:opcode 0xD4
+                   :address-mode :immediate
+                   :cycles 4}
+
+                  {:opcode 0xE2
+                   :address-mode :immediate
+                   :cycles 3}
+
+                  {:opcode 0xF4
+                   :address-mode :immediate
+                   :cycles 4}]}
+
+   ; Undocumented. aka *NOP
+   "SOP" {:function status/nop-opfn
+          :mutates-memory false
+          :codes [{:opcode 0x1A
+                   :address-mode :implied
+                   :cycles 2}
+
+                  {:opcode 0x3A
+                   :address-mode :implied
+                   :cycles 2}
+
+                  {:opcode 0x5A
+                   :address-mode :implied
+                   :cycles 2}
+
+                  {:opcode 0x7A
+                   :address-mode :implied
+                   :cycles 2}
+
+                  {:opcode 0xDA
+                   :address-mode :implied
+                   :cycles 2}
+
+                  {:opcode 0xFA
+                   :address-mode :implied
+                   :cycles 2}]}
+
+   ; Undocumented.
+   "TOP" {:function status/nop-opfn
+          :mutates-memory false
+          :codes [{:opcode 0x0C
+                   :address-mode :absolute
+                   :cycles 4}
+
+                  {:opcode 0x1C
+                   :address-mode :absolutex
+                   :cycles 4}
+
+                  {:opcode 0x3C
+                   :address-mode :absolutex
+                   :cycles 4}
+
+                  {:opcode 0x5C
+                   :address-mode :absolutex
+                   :cycles 4}
+
+                  {:opcode 0x7C
+                   :address-mode :absolutex
+                   :cycles 4}
+
+                  {:opcode 0xDC
+                   :address-mode :absolutex
+                   :cycles 4}
+
+                  {:opcode 0xFC
+                   :address-mode :absolutex
+                   :cycles 4}]}})
 
 (def instruction-set
   (->> instructions

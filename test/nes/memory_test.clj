@@ -26,8 +26,13 @@
   (-> (new-memory)
       (assoc 0x1234 0xCD)
       (assoc 0x1235 0xAB)
-      (assoc 0xABCD 0xEE)
       (indirect-address 0x1234)) => 0xABCD)
+
+(fact "indirect-address handles a bug where an address like xxFF for the lsb uses xx00 for the msb"
+  (-> (new-memory)
+      (assoc 0x02FF 0x34)
+      (assoc 0x0200 0x12)
+      (indirect-address 0x2FF)) => 0x1234)
 
 (fact "address calculates (indirect+x) addresses"
   (-> (new-system)

@@ -96,7 +96,6 @@
   (let [mem (:mem system)
         instruction (get-current-instruction system)
         cycles (:cycles instruction)]
-        ; _ (debug/show-state system instruction)]
     (-> system
         (update-pc instruction)
         (execute-opfn instruction)

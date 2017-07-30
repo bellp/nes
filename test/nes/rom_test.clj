@@ -58,7 +58,6 @@
     (:sp system)
     (:cyc system)))
 
-
 (defn- hexstr->int
   [str]
   (Integer/parseInt str 16))
@@ -109,6 +108,7 @@
                    (update :mem (fn [m] (write-into m 0x8000 prg-rom)))
                    (assoc :pc 0xC000))]
     (loop [s system row 0]
+      (println (format "Row %d" (inc row)))
       (let [instruction (sys/get-current-instruction s)
             converted-system {:acc (:acc s)
                               :pc (:pc s)
@@ -120,7 +120,6 @@
                               :opcode (:opcode instruction)
                               :operand (:operand instruction)
                               :operand-size ((:address-mode instruction) op/operand-sizes)}
-
             _ (println (format "Line %d: %s" (inc row) (sys->text converted-system)))]
 
         (if (not (= converted-system (log row)))
@@ -128,7 +127,8 @@
             (println (format "On line %d:" (inc row)))
             (println (format "Expected : %s" (sys->text (log row))))
             (println (format "Actual   : %s" (sys->text converted-system))))
-          (recur (sys/execute s) (inc row)))))))
+          (do
+            (recur (sys/execute s) (inc row))))))))
 
 
 
