@@ -108,7 +108,7 @@
                    (update :mem (fn [m] (write-into m 0x8000 prg-rom)))
                    (assoc :pc 0xC000))]
     (loop [s system row 0]
-      (println (format "Row %d" (inc row)))
+      ; (println (format "Row %d" (inc row)))
       (let [instruction (sys/get-current-instruction s)
             converted-system {:acc (:acc s)
                               :pc (:pc s)

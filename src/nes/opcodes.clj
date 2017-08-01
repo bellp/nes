@@ -598,6 +598,11 @@
                    :address-mode :immediate
                    :cycles 2}
 
+                  ; Undocumented opcode
+                  {:opcode 0xEB
+                   :address-mode :immediate
+                   :cycles 2}
+
                   {:opcode 0xE5
                    :address-mode :zeropage
                    :cycles 3}
@@ -738,6 +743,38 @@
                    :address-mode :implied
                    :cycles 2}]}
 
+  ; The following instructions are "undocumented"
+
+   "DCP" {:function dcp-opfn
+          :mutates-memory true
+          :codes [{:opcode 0xC7
+                   :address-mode :zeropage
+                   :cycles 5}
+
+                  {:opcode 0xD7
+                   :address-mode :zeropagex
+                   :cycles 6}
+
+                  {:opcode 0xCF
+                   :address-mode :absolute
+                   :cycles 6}
+
+                  {:opcode 0xDF
+                   :address-mode :absolutex
+                   :cycles 7}
+
+                  {:opcode 0xDB
+                   :address-mode :absolutey
+                   :cycles 7}
+
+                  {:opcode 0xC3
+                   :address-mode :indirectx
+                   :cycles 8}
+
+                  {:opcode 0xD3
+                   :address-mode :indirecty
+                   :cycles 8}]}
+
    ; Undocumented.
    "DOP" {:function status/nop-opfn
           :mutates-memory false
@@ -823,6 +860,26 @@
                   {:opcode 0xB3
                    :address-mode :indirecty
                    :cycles 5}]}
+
+   ; Undocumented.
+   "SAX" {:function xfer/sax-opfn
+          :mutates-memory true
+          :codes [{:opcode 0x87
+                   :address-mode :zeropage
+                   :cycles 3}
+
+                  {:opcode 0x97
+                   :address-mode :zeropagey
+                   :cycles 4}
+
+                  {:opcode 0x83
+                   :address-mode :indirectx
+                   :cycles 6}
+
+                  {:opcode 0x8F
+                   :address-mode :absolute
+                   :cycles 4}]}
+
 
    ; Undocumented.
    "SOP" {:function status/nop-opfn

@@ -95,3 +95,11 @@
 
 (defn cpy-opfn [system m]
   (cmp-reg system (:y system) m))
+
+(defn dcp-opfn [system addr]
+  (let [before-m (get-in system [:mem addr])
+        after-sys (dec-opfn system addr)
+        after-m (get-in after-sys [:mem addr])]
+    (cmp-reg after-sys (:acc after-sys) after-m)))
+
+

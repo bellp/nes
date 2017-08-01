@@ -63,3 +63,8 @@
 (defn sty-opfn
   [system addr]
   (store-register system :y addr))
+
+(defn sax-opfn
+  [system addr]
+  (let [value (bit-and (:x system) (:acc system))]
+    (assoc-in system [:mem addr] value)))
