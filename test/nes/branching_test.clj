@@ -20,6 +20,17 @@
         (branch 0x20)
         (:cycle-count)) => 1)
 
+(fact "branch increments the cycle count by two if page crossed"
+    (-> (new-system)
+        (assoc :pc 0xFF)
+        (branch 0x01)
+        (:cycle-count)) => 2
+
+    (-> (new-system)
+        (assoc :pc 0xF0)
+        (branch 0x0F)
+        (:cycle-count)) => 1)
+
 (fact "JMP changes PC to address"
   (-> (new-system)
       (assoc :pc 0x1234)

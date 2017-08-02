@@ -103,12 +103,13 @@
 (fact "emulator matches nestest log" :integration
   (let [log (parse-nestest-file "nestest.log")
         prg-rom (read-prg nestest/rom (read-header nestest/rom))
+        num-rows (count log)
+        _ (println (format "Number of rows: %d" num-rows))
         system (-> (sys/new-system)
                    (update :mem (fn [m] (write-into m 0xC000 prg-rom)))
                    (update :mem (fn [m] (write-into m 0x8000 prg-rom)))
                    (assoc :pc 0xC000))]
     (loop [s system row 0]
-      ; (println (format "Row %d" (inc row)))
       (let [instruction (sys/get-current-instruction s)
             converted-system {:acc (:acc s)
                               :pc (:pc s)
@@ -119,53 +120,18 @@
                               :cyc (rem (* 3 (:cycle-count s)) 341)
                               :opcode (:opcode instruction)
                               :operand (:operand instruction)
-                              :operand-size ((:address-mode instruction) op/operand-sizes)}
-            _ (println (format "Line %d: %s" (inc row) (sys->text converted-system)))]
-
-        (if (not (= converted-system (log row)))
+                              :operand-size ((:address-mode instruction) op/operand-sizes)}]
+        (cond
+          (not (= converted-system (log row)))
           (do
             (println (format "On line %d:" (inc row)))
             (println (format "Expected : %s" (sys->text (log row))))
-            (println (format "Actual   : %s" (sys->text converted-system))))
-          (do
-            (recur (sys/execute s) (inc row))))))))
+            (println (format "Actual   : %s" (sys->text converted-system)))
+            converted-system)
 
-; (fact "Can parse lines" :integration
-;   (let [states (parse-nestest-file "nestest.log")]
-;     (first states) => {:pc 0xC000
-;                         :opcode 0x4C
-;                         :operand 0xC5F5
-;                         :acc 0x00
-;                         :x 0x00
-;                         :y 0x00
-;                         :p 0x24
-;                         :sp 0xFD
-;                         :cyc 0
-;                         :operand-size 2}
-
-;     (states 6) => {:pc 0xC72D
-;                    :opcode 0xEA
-;                    :operand nil
-;                    :acc 0x00
-;                    :x 0x00
-;                    :y 0x00
-;                    :p 0x26
-;                    :sp 0xFB
-;                    :cyc 60
-;                    :operand-size 0}
-
-;     (states 8) => {:pc 0xC72F
-;                    :opcode 0xB0
-;                    :operand 0x04
-;                    :acc 0x00
-;                    :x 0x00
-;                    :y 0x00
-;                    :p 0x27
-;                    :sp 0xFB
-;                    :cyc 72
-;                    :operand-size 1}))
-
-
+          (>= row (dec num-rows)) (println "SUCCESS!")
+          :else
+            (recur (sys/execute s) (inc row)))))))
 
 (fact "run nestest" :integration
   (let [prg-rom (read-prg nestest/rom (read-header nestest/rom))]

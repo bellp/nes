@@ -598,7 +598,7 @@
                    :address-mode :immediate
                    :cycles 2}
 
-                  ; Undocumented opcode
+                  ; Illegal opcode
                   {:opcode 0xEB
                    :address-mode :immediate
                    :cycles 2}
@@ -743,7 +743,7 @@
                    :address-mode :implied
                    :cycles 2}]}
 
-  ; The following instructions are "undocumented"
+  ; The following instructions are "Illegal"
 
    "DCP" {:function dcp-opfn
           :mutates-memory true
@@ -775,7 +775,7 @@
                    :address-mode :indirecty
                    :cycles 8}]}
 
-   ; Undocumented.
+   ; Illegal.
    "DOP" {:function status/nop-opfn
           :mutates-memory false
           :codes [{:opcode 0x04
@@ -834,7 +834,37 @@
                    :address-mode :immediate
                    :cycles 4}]}
 
-   ; Undocumented.
+   "INS" {:function ins-opfn
+          :mutates-memory true
+          :codes [{:opcode 0xE7
+                   :address-mode :zeropage
+                   :cycles 5}
+
+                  {:opcode 0xF7
+                   :address-mode :zeropagex
+                   :cycles 6}
+
+                  {:opcode 0xEF
+                   :address-mode :absolute
+                   :cycles 6}
+
+                  {:opcode 0xFF
+                   :address-mode :absolutex
+                   :cycles 7}
+
+                  {:opcode 0xFB
+                   :address-mode :absolutey
+                   :cycles 7}
+
+                  {:opcode 0xE3
+                   :address-mode :indirectx
+                   :cycles 8}
+
+                  {:opcode 0xF3
+                   :address-mode :indirecty
+                   :cycles 8}]}
+
+   ; Illegal.
    "LAX" {:function xfer/lax-opfn
           :mutates-memory false
           :codes [{:opcode 0xA7
@@ -861,7 +891,69 @@
                    :address-mode :indirecty
                    :cycles 5}]}
 
-   ; Undocumented.
+   ; Illegal.
+   "RLA" {:function logic/rla-opfn
+          :mutates-memory true
+          :codes [{:opcode 0x27
+                   :address-mode :zeropage
+                   :cycles 5}
+
+                  {:opcode 0x37
+                   :address-mode :zeropagex
+                   :cycles 6}
+
+                  {:opcode 0x2F
+                   :address-mode :absolute
+                   :cycles 6}
+
+                  {:opcode 0x3F
+                   :address-mode :absolutex
+                   :cycles 7}
+
+                  {:opcode 0x3B
+                   :address-mode :absolutey
+                   :cycles 7}
+
+                  {:opcode 0x23
+                   :address-mode :indirectx
+                   :cycles 8}
+
+                  {:opcode 0x33
+                   :address-mode :indirecty
+                   :cycles 8}]}
+
+   ; Illegal.
+   "RRA" {:function logic/rra-opfn
+          :mutates-memory true
+          :codes [{:opcode 0x67
+                   :address-mode :zeropage
+                   :cycles 5}
+
+                  {:opcode 0x77
+                   :address-mode :zeropagex
+                   :cycles 6}
+
+                  {:opcode 0x6F
+                   :address-mode :absolute
+                   :cycles 6}
+
+                  {:opcode 0x7F
+                   :address-mode :absolutex
+                   :cycles 7}
+
+                  {:opcode 0x7B
+                   :address-mode :absolutey
+                   :cycles 7}
+
+                  {:opcode 0x63
+                   :address-mode :indirectx
+                   :cycles 8}
+
+                  {:opcode 0x73
+                   :address-mode :indirecty
+                   :cycles 8}]}
+
+   ; Illegal.
    "SAX" {:function xfer/sax-opfn
           :mutates-memory true
           :codes [{:opcode 0x87
@@ -880,8 +972,38 @@
                    :address-mode :absolute
                    :cycles 4}]}
 
+   ; Illegal.
+   "SLO" {:function logic/slo-opfn
+          :mutates-memory true
+          :codes [{:opcode 0x07
+                   :address-mode :zeropage
+                   :cycles 5}
 
-   ; Undocumented.
+                  {:opcode 0x17
+                   :address-mode :zeropagex
+                   :cycles 6}
+
+                  {:opcode 0x0F
+                   :address-mode :absolute
+                   :cycles 6}
+
+                  {:opcode 0x1F
+                   :address-mode :absolutex
+                   :cycles 7}
+
+                  {:opcode 0x1B
+                   :address-mode :absolutey
+                   :cycles 7}
+
+                  {:opcode 0x03
+                   :address-mode :indirectx
+                   :cycles 8}
+
+                  {:opcode 0x13
+                   :address-mode :indirecty
+                   :cycles 8}]}
+
+   ; Illegal.
    "SOP" {:function status/nop-opfn
           :mutates-memory false
           :codes [{:opcode 0x1A
@@ -908,7 +1030,38 @@
                    :address-mode :implied
                    :cycles 2}]}
 
-   ; Undocumented.
+   ; Illegal.
+   "SRE" {:function logic/sre-opfn
+          :mutates-memory true
+          :codes [{:opcode 0x47
+                   :address-mode :zeropage
+                   :cycles 5}
+
+                  {:opcode 0x57
+                   :address-mode :zeropagex
+                   :cycles 6}
+
+                  {:opcode 0x4F
+                   :address-mode :absolute
+                   :cycles 6}
+
+                  {:opcode 0x5F
+                   :address-mode :absolutex
+                   :cycles 7}
+
+                  {:opcode 0x5B
+                   :address-mode :absolutey
+                   :cycles 7}
+
+                  {:opcode 0x43
+                   :address-mode :indirectx
+                   :cycles 8}
+
+                  {:opcode 0x53
+                   :address-mode :indirecty
+                   :cycles 8}]}
+
+   ; Illegal.
    "TOP" {:function status/nop-opfn
           :mutates-memory false
           :codes [{:opcode 0x0C

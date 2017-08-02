@@ -1,5 +1,6 @@
 (ns nes.logic
-  (:require [nes.memory :as mem]))
+  (:require [nes.memory :as mem]
+            [nes.arithmetic :as math]))
 
 (defn bit-opfn [system m]
   (let [result (bit-and m (:acc system))]
@@ -66,3 +67,22 @@
         (assoc :sign-flag (bit-test shifted-with-carry 7))
         (mem/write8 addr shifted-with-carry))))
 
+(defn slo-opfn [system addr]
+  (let [after-asl-sys (asl-opfn system addr)
+        m (get-in after-asl-sys [:mem addr])]
+    (ora-opfn after-asl-sys m)))
+
+(defn rla-opfn [system addr]
+  (let [after-rol-sys (rol-opfn system addr)
+        m (get-in after-rol-sys [:mem addr])]
+    (and-opfn after-rol-sys m)))
+
+(defn sre-opfn [system addr]
+  (let [after-lsr-sys (lsr-opfn system addr)
+        m (get-in after-lsr-sys [:mem addr])]
+    (eor-opfn after-lsr-sys m)))
+
+(defn rra-opfn [system addr]
+  (let [after-ror-sys (ror-opfn system addr)
+        m (get-in after-ror-sys [:mem addr])]
+    (math/adc-opfn after-ror-sys m)))

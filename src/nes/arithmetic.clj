@@ -102,4 +102,8 @@
         after-m (get-in after-sys [:mem addr])]
     (cmp-reg after-sys (:acc after-sys) after-m)))
 
+(defn ins-opfn [system addr]
+  (let [inc-sys (inc-opfn system addr)
+        m (get-in inc-sys [:mem addr])]
+    (sbc-opfn inc-sys m)))
 
