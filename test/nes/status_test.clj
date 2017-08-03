@@ -2,7 +2,8 @@
   (:require [midje.sweet :refer :all]
             [nes.status :refer :all]
             [nes.system :refer :all]
-            [nes.memory :as mem]))
+            [nes.memory :as mem]
+            [nes.debug :as debug]))
 
 (defn- clear-flags [system]
   (-> system

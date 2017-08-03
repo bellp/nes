@@ -1,4 +1,5 @@
 (ns nes.assembly-test
+    (require [nes.mapper :as mapper])
     (:use [midje.sweet]
           [nes.memory]
           [nes.system]
@@ -155,8 +156,8 @@
   (let [system (-> (new-system)
                    (compile-statement "INX")
                    (compile-statement "INY"))]
-    (get-in system [:mem 0x00]) => 0xE8
-    (get-in system [:mem 0x01]) => 0xC8))
+    (mapper/read8 system 0x00) => 0xE8
+    (mapper/read8 system 0x01) => 0xC8))
 
 
 

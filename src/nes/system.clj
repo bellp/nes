@@ -1,6 +1,7 @@
 (ns nes.system
   (:require [nes.opcodes :refer :all]
             [nes.memory :as mem]
+            [nes.mapper :as mapper]
             [nes.debug :as debug]))
 
 (defn new-system []
@@ -21,7 +22,8 @@
     :sign-flag     false
 
     :cycle-count   0
-    :mem          (mem/new-memory)})
+    :mapper mapper/test-mapper})
+    ; :mem          (mem/new-memory)})
 
 (defn update-pc
   [system instruction]
@@ -41,7 +43,7 @@
           (case mode
             :absolutex operand
             :absolutey operand
-            :indirecty (mem/indirect-address (:mem system) operand)
+            :indirecty (mem/indirect-address system operand)
             nil)]
     (if (and address
              (not (mem/same-page? resolved-address address)))
@@ -61,23 +63,23 @@
 (defn read-operand
   "Gets an operand form a given address given a
   size (0, 1, or 2 bytes)"
-  [mem addr size]
+  [system addr size]
   (case size
     0 nil
-    1 (get mem addr)
+    1 (mapper/read8 system addr)
     2 (mem/combine-bytes
-        (get mem (inc addr))
-        (get mem addr))))
+        (mapper/read8 system (inc addr))
+        (mapper/read8 system addr))))
 
 (defn get-current-instruction
   [system]
-  (let [opcode (get (:mem system) (:pc system))
+  (let [opcode (mapper/read8 system (:pc system))
         instruction (get instruction-set opcode)
         _ (if (nil? instruction)
             (println (format "ERROR: opcode %02X does not correspond with a known instruction" opcode)))
         operand-size ((:address-mode instruction) operand-sizes)
         operand (read-operand
-                  (:mem system)
+                  system
                   (inc (:pc system))
                   operand-size)]
     (assoc instruction :operand operand)))
@@ -93,14 +95,12 @@
   return a new system. This can be thought as the heart of the CPU
   emulator."
   [system]
-  (let [mem (:mem system)
-        instruction (get-current-instruction system)
+  (let [instruction (get-current-instruction system)
         cycles (:cycles instruction)]
     (-> system
         (update-pc instruction)
         (execute-opfn instruction)
         (update :cycle-count #(+ cycles %)))))
-
 
 (defn run
   [system iterations]

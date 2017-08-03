@@ -1,4 +1,5 @@
 (ns nes.memory-test
+    (require [nes.mapper :as mapper])
     (:use [midje.sweet]
           [nes.system]
           [nes.opcodes]
@@ -23,84 +24,69 @@
    (absolute-reg16 0xFFFF 0x0001) => 0x0000)
 
 (fact "address calculates indirect addresses"
-  (-> (new-memory)
-      (assoc 0x1234 0xCD)
-      (assoc 0x1235 0xAB)
+  (-> (new-system)
+      (mapper/write8 0x1234 0xCD)
+      (mapper/write8 0x1235 0xAB)
       (indirect-address 0x1234)) => 0xABCD)
 
 (fact "indirect-address handles a bug where an address like xxFF for the lsb uses xx00 for the msb"
-  (-> (new-memory)
-      (assoc 0x02FF 0x34)
-      (assoc 0x0200 0x12)
+  (-> (new-system)
+      (mapper/write8 0x02FF 0x34)
+      (mapper/write8 0x0200 0x12)
       (indirect-address 0x2FF)) => 0x1234)
 
 (fact "address calculates (indirect+x) addresses"
   (-> (new-system)
       (assoc :x 0x01)
-      (assoc-in [:mem 0x12] 0xCD)
-      (assoc-in [:mem 0x13] 0xAB)
+      (mapper/write8 0x12 0xCD)
+      (mapper/write8 0x13 0xAB)
       (indirect-x 0x11)) => 0xABCD
 
   (-> (new-system)
       (assoc :x 0x01)
-      (assoc-in [:mem 0x00] 0xCD)
-      (assoc-in [:mem 0x01] 0xAB)
+      (mapper/write8 0x00 0xCD)
+      (mapper/write8 0x01 0xAB)
       (indirect-x 0xFF)) => 0xABCD)
 
 (fact "address calculates (indirect)+y addresses"
   (-> (new-system)
       (assoc :y 0x01)
-      (assoc-in [:mem 0x34] 0xCD)
-      (assoc-in [:mem 0x35] 0xAB)
+      (mapper/write8 0x34 0xCD)
+      (mapper/write8 0x35 0xAB)
       (indirect-y 0x34)) => 0xABCE
 
   (-> (new-system)
       (assoc :y 0x05)
-      (assoc-in [:mem 0x34] 0xFF)
-      (assoc-in [:mem 0x35] 0xFF)
+      (mapper/write8 0x34 0xFF)
+      (mapper/write8 0x35 0xFF)
       (indirect-y 0x34)) => 0x0004)
 
 (fact "get-current-instruction returns instruction with current opcode"
   (-> (new-system)
-      (assoc-in [:mem 0x00] 0x75)
+      (mapper/write8 0x00 0x75)
       (get-current-instruction)
       (:opcode)) => 0x75)
 
 (fact "get-current-instruction returns instruction with current 8-bit operand"
   (-> (new-system)
-      (assoc-in [:mem 0x00] 0x75)
-      (assoc-in [:mem 0x01] 0x55)
+      (mapper/write8 0x00 0x75)
+      (mapper/write8 0x01 0x55)
       (get-current-instruction)
       (:operand)) => 0x55)
 
 (fact "get-current-instruction returns instruction with current 16-bit operand"
   (-> (new-system)
-      (assoc-in [:mem 0x00] 0x6D)
-      (assoc-in [:mem 0x01] 0x34)
-      (assoc-in [:mem 0x02] 0x12)
+      (mapper/write8 0x00 0x6D)
+      (mapper/write8 0x01 0x34)
+      (mapper/write8 0x02 0x12)
       (get-current-instruction)
       (:operand)) => 0x1234)
 
 (fact "get-current-instruction returns instruction with correct name"
   (-> (new-system)
-      (assoc-in [:mem 0x00] 0x75)
+      (mapper/write8 0x00 0x75)
       (get-current-instruction)
       (:name)) => "ADC")
-
-(fact "read-operand can return an 8-bit value in memory"
-  (-> (new-memory)
-      (assoc 0x1234 0x55)
-      (read-operand 0x1234 1)) => 0x55)
-
-(fact "read-operand can return an 8-bit value in memory"
-  (-> (new-memory)
-      (assoc 0x1234 0xCD)
-      (assoc 0x1235 0xAB)
-      (read-operand 0x1234 2)) => 0xABCD)
-
-(fact "read-operand returns nil if operand-size is 0 (immediate address mode)"
-  (-> (new-memory)
-      (read-operand 0x0000 0)) => nil)
 
 (fact "same-page? returns whether two addresses are within the same 256 byte page"
   (same-page? 0x00 0xFF) => true
@@ -113,13 +99,13 @@
 (fact "write16 can write a 16-bit value to memory"
   (let [system (-> (new-system)
                    (write16 0x1000 0xABCD))]
-     (get-in system [:mem 0x1000]) => 0xCD
-     (get-in system [:mem 0x1001]) => 0xAB))
+     (mapper/read8 system 0x1000) => 0xCD
+     (mapper/read8 system 0x1001) => 0xAB))
 
 (fact "read16 reads a 16-bit value from a given address"
   (-> (new-system)
-      (assoc-in [:mem 0x1000] 0x34)
-      (assoc-in [:mem 0x1001] 0x12)
+      (mapper/write8 0x1000 0x34)
+      (mapper/write8 0x1001 0x12)
       (read16 0x1000)) => 0x1234)
 
 (fact "push16 pushes a 16-bit value (such as an address) onto the stack"
@@ -154,5 +140,22 @@
 (fact "read-last-pushed-byte reads the top byte on the stack"
   (-> (new-system)
       (assoc :sp 0xFE)
-      (assoc-in [:mem 0x1FF] 0x3F)
+      (mapper/write8 0x1FF 0x3F)
       (read-last-pushed-byte)) => 0x3F)
+
+(fact "memory addresses 0x000 to 0x7FF mirror up to 0x1FFF"
+  (-> (new-system)
+      (write8 0x0000 0x33)
+      (read8 0x800)) => 0x33
+
+  (-> (new-system)
+      (write8 0x07FF 0xFF)
+      (read8 0xFFF)) => 0xFF
+
+  (-> (new-system)
+      (write8 0x07FF 0xFF)
+      (read8 0x1FFF)) => 0xFF
+
+  (-> (new-system)
+      (write8 0x0000 0xFF)
+      (read8 0x2000)) => 0x00)

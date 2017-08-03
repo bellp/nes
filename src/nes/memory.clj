@@ -1,4 +1,5 @@
-(ns nes.memory)
+(ns nes.memory
+  (require [nes.mapper :as mapper]))
 
 (defn new-memory
   "Creates a new 64kb memory space."
@@ -18,14 +19,14 @@
 
 (defn read-last-pushed-byte
   [system]
-  (get-in system [:mem (-> (:sp system)
+  (mapper/read8 system (-> (:sp system)
                            (inc)
                            (bit-and 0xFF)
-                           (bit-or 0x100))]))
+                           (bit-or 0x100))))
 
 (defn push8 [system value]
   (-> system
-      (assoc-in [:mem (bit-or 0x100 (:sp system))] value)
+      (mapper/write8 (bit-or 0x100 (:sp system)) value)
       (update :sp dec)))
 
 (defn push16 [system value]
@@ -34,51 +35,51 @@
         top (bit-or (:sp system) 0x100)
         top-1 (dec (bit-or (:sp system) 0x100))]
     (-> system
-        (assoc-in [:mem top] msb)
-        (assoc-in [:mem top-1] lsb)
+        (mapper/write8 top msb)
+        (mapper/write8 top-1 lsb)
         (update :sp (fn [sp] (bit-and 0xFF (- sp 2)))))))
 
 (defn read16
   [system address]
   (let [mem (:mem system)
-        lsb (get mem address)
-        msb (get mem (inc address))]
+        lsb (mapper/read8 system address)
+        msb (mapper/read8 system (inc address))]
     (combine-bytes msb lsb)))
 
 (defn write16 [system address value]
   (let [msb (most-significant-byte value)
         lsb (bit-and value 0xFF)]
     (-> system
-        (assoc-in [:mem address] lsb)
-        (assoc-in [:mem (bit-and 0xFFFF (inc address))] msb))))
+        (mapper/write8 address lsb)
+        (mapper/write8 (bit-and 0xFFFF (inc address)) msb))))
 
 (defn read8
   "Reads an 8-bit value from a given address (or accumulator)"
   [system address]
   (case address
     :accumulator (:acc system)
-    (get-in system [:mem address])))
+    (mapper/read8 system address)))
 
 (defn write8 [system address value]
   (case address
     :accumulator (assoc system :acc (bit-and 0xFF value))
-    (assoc-in system [:mem address] (bit-and 0xFF value))))
+    (mapper/write8 system address (bit-and 0xFF value))))
 
 (defn single-page-read16
-  [mem address]
-  (let [msb (get mem (bit-and (inc address) 0xFF))
-        lsb (get mem (bit-and address 0xFF))]
+  [system address]
+  (let [msb (mapper/read8 system (bit-and (inc address) 0xFF))
+        lsb (mapper/read8 system (bit-and address 0xFF))]
     (combine-bytes msb lsb)))
 
 (defn indirect-address
-  [mem operand]
-  (let [msb (get mem (bit-or (bit-and operand 0xFF00) (bit-and (inc operand) 0xFF)))
-        lsb (get mem (bit-and operand 0xFFFF))]
+  [system operand]
+  (let [msb (mapper/read8 system (bit-or (bit-and operand 0xFF00) (bit-and (inc operand) 0xFF)))
+        lsb (mapper/read8 system (bit-and operand 0xFFFF))]
     (combine-bytes msb lsb)))
 
 (defn indirect-y
   [system operand]
-  (-> (:mem system)
+  (-> system
       (single-page-read16 operand)
       (+ (:y system))
       (bit-and 0xFFFF)))
@@ -86,7 +87,7 @@
 (defn indirect-x
   [system operand]
   (let [x-offset (bit-and (+ operand (:x system)) 0xFF)]
-    (-> (:mem system)
+    (-> system
         (single-page-read16 x-offset))))
 
 (defn zeropage-reg8
@@ -121,7 +122,7 @@
       :absolute    operand
       :absolutex   (absolute-reg16 operand (:x system))
       :absolutey   (absolute-reg16 operand (:y system))
-      :indirect    (indirect-address mem operand)
+      :indirect    (indirect-address system operand)
       :indirectx   (indirect-x system operand)
       :indirecty   (indirect-y system operand))))
 
@@ -134,5 +135,5 @@
       :implied nil
       :relative (:operand instruction)
       :immediate (:operand instruction)
-      (get (:mem system) address))))
+      (mapper/read8 system address))))
 

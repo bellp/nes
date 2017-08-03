@@ -1,7 +1,8 @@
 (ns nes.branching-test
     (:require [midje.sweet :refer :all]
               [nes.system :refer :all]
-              [nes.branching :refer :all]))
+              [nes.branching :refer :all]
+              [nes.mapper :as mapper]))
 
 (fact "branch can jump with positive relative number"
   (-> (new-system)
@@ -146,13 +147,13 @@
         (assoc :sp 0xFF)
         (assoc :pc 0x1234)
         (jsr-opfn 0x2000)
-        (get-in [:mem 0x1FF])) => 0x12
+        (mapper/read8 0x1FF)) => 0x12
 
     (-> (new-system)
         (assoc :sp 0xFF)
         (assoc :pc 0x1234)
         (jsr-opfn 0x2000)
-        (get-in [:mem 0x1FE])) => 0x33)
+        (mapper/read8 0x1FE)) => 0x33)
 
 (fact "JSR changes the current program counter"
     (-> (new-system)
@@ -162,8 +163,8 @@
 
 (fact "RTS changes the current program counter to the 16-bit value on the stack + 1"
     (-> (new-system)
-        (assoc-in [:mem 0x1FC] 0x33)
-        (assoc-in [:mem 0x1FD] 0x12)
+        (mapper/write8 0x1FC 0x33)
+        (mapper/write8 0x1FD 0x12)
         (assoc :sp 0xFB)
         (rts-opfn nil)
         (:pc)) => 0x1234)

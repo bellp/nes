@@ -20,7 +20,6 @@
       (assoc :zero-flag (bit-test sr 1))
       (assoc :int-flag (bit-test sr 2))
       (assoc :dec-flag (bit-test sr 3))
-      ; (assoc :brk-flag (bit-test sr 4))
       (assoc :unused-flag true)
       (assoc :overflow-flag (bit-test sr 6))
       (assoc :sign-flag (bit-test sr 7))))

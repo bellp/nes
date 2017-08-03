@@ -1,4 +1,5 @@
-(ns nes.arithmetic)
+(ns nes.arithmetic
+  (require [nes.mapper :as mapper]))
 
 (defn adc-opfn
   [system m]
@@ -48,11 +49,10 @@
 (defn change-memory-by-one
   "Used by increment/decrement functions to change values in memory"
   [system op addr]
-  (let [mem (:mem system)
-        result (change-by-one op (mem addr))]
+  (let [result (change-by-one op (mapper/read8 system addr))]
     (-> system
         (update-by-one-flags result)
-        (assoc-in [:mem addr] result))))
+        (mapper/write8 addr result))))
 
 (defn- change-register-by-one
   "Used by increment/decrement functions to change values in a register"
