@@ -1,5 +1,4 @@
-(ns nes.mapper
-  (require [nes.system]))
+(ns nes.mapper)
 
 (defn test-write8
   [system addr value]
