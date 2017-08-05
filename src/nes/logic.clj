@@ -69,20 +69,20 @@
 
 (defn slo-opfn [system addr]
   (let [after-asl-sys (asl-opfn system addr)
-        m (get-in after-asl-sys [:mem addr])]
+        m (mem/read8 after-asl-sys addr)]
     (ora-opfn after-asl-sys m)))
 
 (defn rla-opfn [system addr]
   (let [after-rol-sys (rol-opfn system addr)
-        m (get-in after-rol-sys [:mem addr])]
+        m (mem/read8 after-rol-sys addr)]
     (and-opfn after-rol-sys m)))
 
 (defn sre-opfn [system addr]
   (let [after-lsr-sys (lsr-opfn system addr)
-        m (get-in after-lsr-sys [:mem addr])]
+        m (mem/read8 after-lsr-sys addr)]
     (eor-opfn after-lsr-sys m)))
 
 (defn rra-opfn [system addr]
   (let [after-ror-sys (ror-opfn system addr)
-        m (get-in after-ror-sys [:mem addr])]
+        m (mem/read8 after-ror-sys addr)]
     (math/adc-opfn after-ror-sys m)))

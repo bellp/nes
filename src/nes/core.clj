@@ -1,12 +1,12 @@
 (ns nes.core
-  (:use [nes.system]
-        [nes.opcodes]
-        [nes.debug]
-        [nes.memory]
-        [nes.assembly]
-        [nes.rom :as rom]))
+  (require [nes.debug :as debug]
+           [nes.rom :as rom]
+           [nes.system :as sys]))
 
-(defn foo
+(defn -main
   "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+  [& args]
+  (let [rom (-> (rom/read-file (first args))
+                (rom/read-rom))]
+    (-> (sys/boot rom)
+        (debug/inspect))))

@@ -17,23 +17,79 @@
 (fact "header contains number of PRG ROM 16 kb units"
   (-> nestest/rom
       (read-header)
-      (:prg-rom-units)) => 1)
+      (:num-prg-rom-banks)) => 1)
 
 (fact "header contains number of CHR ROM 8 kb units"
   (-> nestest/rom
       (read-header)
-      (:chr-rom-units)) => 1)
-
-(fact "read-prg reads 16384 bytes"
-  (-> nestest/rom
-      (read-prg (read-header nestest/rom))
-      (count)) => 16384)
+      (:num-chr-rom-banks)) => 1)
 
 (fact "write-into works"
   (write-into [0 1 2 3 4 5 6 7 8 9]
               4
               [42 43]) => [0 1 2 3 42 43 6 7 8 9])
 
+(fact "If ROM control byte 1/bit 0 is clear then rom uses horizontal mirroring"
+  (-> nestest/rom
+      (read-header)
+      (:mirroring)) => :horizontal)
+
+(fact "If ROM control byte 1/bit 0 is set then rom uses vertical mirroring"
+  (-> nestest/rom
+      (assoc 6 0x01)
+      (read-header)
+      (:mirroring)) => :vertical)
+
+(fact "If ROM control byte 1/bit 1 is clear then rom uses battery-packed RAM at 0x6000-0x7FFF."
+  (-> nestest/rom
+      (read-header)
+      (:battery?)) => false)
+
+(fact "If ROM control byte 1/bit 1 is set then rom uses battery-packed RAM at 0x6000-0x7FFF."
+  (-> nestest/rom
+      (assoc 6 0x02)
+      (read-header)
+      (:battery?)) => true)
+
+(fact "If ROM control byte 1/bit 2 is set then rom has a 512-byte trainer at 0x7000-0x71FF"
+  (-> nestest/rom
+      (read-header)
+      (:trainer?)) => false)
+
+(fact "If ROM control byte 1/bit 2 is set then rom doesn't use a 512-byte trainer at 0x7000-0x71FF"
+  (-> nestest/rom
+      (assoc 6 0x04)
+      (read-header)
+      (:trainer?)) => true)
+
+(fact "ROM control byte 1/bits 4-7 and control byte 2/bits 4-7 indicate the mapper number used"
+  (-> nestest/rom
+      (assoc 6 0x30)
+      (assoc 7 0xE0)
+      (read-header)
+      (:mapper)) => 0xE3)
+
+(fact "read-prg-banks reads a ROM's PRG banks into a map"
+  (->> (read-header nestest/rom)
+       (read-prg-banks nestest/rom)
+       (keys)) => [0]
+
+  (->> (read-header nestest/rom)
+       (read-prg-banks nestest/rom)
+       (vals)
+       (flatten)
+       (count)) => 0x4000)
+
+(fact "read-chr-banks reads a ROM's CHR banks into a map"
+  (->> (read-header nestest/rom)
+       (read-chr-banks nestest/rom)
+       (keys)) => [0]
+
+  (->> (read-header nestest/rom)
+       (read-chr-banks nestest/rom)
+       (vals)
+       (flatten)
+       (count)) => 0x2000)
 
 (defn- opcode-and-operands
   [s]
@@ -102,12 +158,8 @@
 
 (fact "emulator matches nestest log" :integration
   (let [log (parse-nestest-file "nestest.log")
-        prg-rom (read-prg nestest/rom (read-header nestest/rom))
         num-rows (count log)
-        _ (println (format "Number of rows: %d" num-rows))
-        system (-> (sys/new-system)
-                   (update :mem (fn [m] (write-into m 0xC000 prg-rom)))
-                   (update :mem (fn [m] (write-into m 0x8000 prg-rom)))
+        system (-> (sys/boot (read-rom nestest/rom))
                    (assoc :pc 0xC000))]
     (loop [s system row 0]
       (let [instruction (sys/get-current-instruction s)
@@ -132,16 +184,3 @@
           (>= row (dec num-rows)) (println "SUCCESS!")
           :else
             (recur (sys/execute s) (inc row)))))))
-
-(fact "run nestest" :integration
-  (let [prg-rom (read-prg nestest/rom (read-header nestest/rom))]
-    (-> (sys/new-system)
-        (update :mem (fn [m] (write-into m 0xC000 prg-rom)))
-        (update :mem (fn [m] (write-into m 0x8000 prg-rom)))
-        (assoc :pc 0xC000)
-        (sys/run 887)
-        (mem/read16 0x0002)) => 0x0000))
-
-
-
-

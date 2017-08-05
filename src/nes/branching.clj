@@ -57,7 +57,6 @@
 
 (defn jsr-opfn
   [system addr]
-  ; (println (format "Pushing address %04X onto stack" (:pc system)))
   (-> system
       (mem/push16 (dec (:pc system)))
       (assoc :pc addr)))
@@ -70,9 +69,6 @@
                    (bit-or 0x100)
                    (mem/read16 system)
                    (inc))]
-
-        ; _ (println (format "Pulled address %04X from the stack" value))]
     (-> system
         (assoc :pc value)
         (update :sp #(+ % 2)))))
-

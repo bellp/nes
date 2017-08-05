@@ -158,7 +158,3 @@
                    (compile-statement "INY"))]
     (mapper/read8 system 0x00) => 0xE8
     (mapper/read8 system 0x01) => 0xC8))
-
-
-
-

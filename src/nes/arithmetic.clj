@@ -1,5 +1,6 @@
 (ns nes.arithmetic
-  (require [nes.mapper :as mapper]))
+  (require [nes.mapper :as mapper]
+           [nes.memory :as mem]))
 
 (defn adc-opfn
   [system m]
@@ -97,13 +98,13 @@
   (cmp-reg system (:y system) m))
 
 (defn dcp-opfn [system addr]
-  (let [before-m (get-in system [:mem addr])
+  (let [before-m (mem/read8 system addr)
         after-sys (dec-opfn system addr)
-        after-m (get-in after-sys [:mem addr])]
+        after-m (mem/read8 after-sys addr)]
     (cmp-reg after-sys (:acc after-sys) after-m)))
 
 (defn ins-opfn [system addr]
   (let [inc-sys (inc-opfn system addr)
-        m (get-in inc-sys [:mem addr])]
+        m (mem/read8 inc-sys addr)]
     (sbc-opfn inc-sys m)))
 

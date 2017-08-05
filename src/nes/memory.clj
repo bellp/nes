@@ -40,10 +40,9 @@
         (update :sp (fn [sp] (bit-and 0xFF (- sp 2)))))))
 
 (defn read16
-  [system address]
-  (let [mem (:mem system)
-        lsb (mapper/read8 system address)
-        msb (mapper/read8 system (inc address))]
+  [system addr]
+  (let [lsb (mapper/read8 system addr)
+        msb (mapper/read8 system (inc addr))]
     (combine-bytes msb lsb)))
 
 (defn write16 [system address value]
@@ -108,8 +107,7 @@
 
 (defn resolve-address
   [system instruction]
-  (let [mem (:mem system)
-        mode (:address-mode instruction)
+  (let [mode (:address-mode instruction)
         operand (:operand instruction)]
     (case mode
       :accumulator :accumulator

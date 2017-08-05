@@ -4,26 +4,32 @@
             [nes.mapper :as mapper]
             [nes.debug :as debug]))
 
-(defn new-system []
-  { :acc           0x00
-    :x             0x00
-    :y             0x00
-    :pc            0x0000
-    :sp            0xFD
+(defn new-system
+  ([mapper] {:acc           0x00
+             :x             0x00
+             :y             0x00
+             :pc            0x0000
+             :sp            0xFD
 
-    :carry-flag    false
-    :zero-flag     false
-    :int-flag      true
-    :dec-flag      false
+             :carry-flag    false
+             :zero-flag     false
+             :int-flag      true
+             :dec-flag      false
 
-    :brk-flag      false
-    :unused-flag   true
-    :overflow-flag false
-    :sign-flag     false
+             :brk-flag      false
+             :unused-flag   true
+             :overflow-flag false
+             :sign-flag     false
 
-    :cycle-count   0
-    :mapper mapper/test-mapper})
-    ; :mem          (mem/new-memory)})
+             :cycle-count   0
+             :mapper mapper})
+  ([] (new-system (mapper/test-mapper))))
+
+(defn boot
+  [rom]
+  (let [new-system (new-system (mapper/load-mapper rom))
+        start-address (mem/read16 new-system 0xFFFC)]
+    (assoc new-system :pc start-address)))
 
 (defn update-pc
   [system instruction]

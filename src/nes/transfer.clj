@@ -50,7 +50,7 @@
   (load-register system (:y system) :acc))
 
 (defn store-register [system register addr]
-  (assoc-in system [:mem addr] (register system)))
+  (mem/write8 system addr (register system)))
 
 (defn sta-opfn
   [system addr]
@@ -67,4 +67,4 @@
 (defn sax-opfn
   [system addr]
   (let [value (bit-and (:x system) (:acc system))]
-    (assoc-in system [:mem addr] value)))
+    (mem/write8 system addr value)))

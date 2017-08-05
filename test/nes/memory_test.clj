@@ -142,20 +142,3 @@
       (assoc :sp 0xFE)
       (mapper/write8 0x1FF 0x3F)
       (read-last-pushed-byte)) => 0x3F)
-
-(fact "memory addresses 0x000 to 0x7FF mirror up to 0x1FFF"
-  (-> (new-system)
-      (write8 0x0000 0x33)
-      (read8 0x800)) => 0x33
-
-  (-> (new-system)
-      (write8 0x07FF 0xFF)
-      (read8 0xFFF)) => 0xFF
-
-  (-> (new-system)
-      (write8 0x07FF 0xFF)
-      (read8 0x1FFF)) => 0xFF
-
-  (-> (new-system)
-      (write8 0x0000 0xFF)
-      (read8 0x2000)) => 0x00)

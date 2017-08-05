@@ -1,7 +1,8 @@
 (ns nes.transfer-test
   (:require [midje.sweet :refer :all]
             [nes.system :refer :all]
-            [nes.transfer :refer :all]))
+            [nes.transfer :refer :all]
+            [nes.memory :refer :all]))
 
 (fact "load-register loads a byte of memory into the accumulator"
   (-> (new-system)
@@ -30,4 +31,5 @@
   (-> (new-system)
       (assoc :acc 0x3F)
       (store-register :acc 0x1234)
-      (get-in [:mem 0x1234])) => 0x3F)
+      (read8 0x1234)) => 0x3F)
+    ;   (get-in [:mem 0x1234])) => 0x3F)
