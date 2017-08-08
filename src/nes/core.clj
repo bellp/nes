@@ -7,6 +7,10 @@
   "I don't do a whole lot."
   [& args]
   (let [rom (-> (rom/read-file (first args))
-                (rom/read-rom))]
-    (-> (sys/boot rom)
-        (debug/inspect))))
+                (rom/read-rom))
+        system (sys/boot rom)]
+    (sys/run system :forever)
+
+
+
+    0))

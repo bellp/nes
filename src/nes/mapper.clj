@@ -55,7 +55,8 @@
 (defn mapper0-read8
   [system addr]
   (cond
-    (>= addr 0x8000) (get-in system [:mapper :rom :prg-banks 0 (bit-and addr 0x3FFF)])
+    (>= addr 0xC000) (get-in system [:mapper :c000 (bit-and addr 0x3FFF)])
+    (>= addr 0x8000) (get-in system [:mapper :8000 (bit-and addr 0x3FFF)])
     (< addr 0x2000) (get-in system [:mapper :mem (bit-and addr 0x7FF)])
     :else 0x00))
 
@@ -63,10 +64,16 @@
   "This is the simplest NES mapper... which is no mapper at all.
   Does not allow re-mapping of PRG or CHR banks."
   [rom]
-  {:read-fn mapper0-read8
-   :write-fn mapper0-write8
-   :mem (vec (repeat 0x800 0x00)) ; 2k RAM
-   :rom rom})
+  (let [num-prg-banks (get-in rom [:header :num-prg-rom-banks])
+        c000-bank (if (= num-prg-banks 1)
+                    (get-in rom [:prg-banks 0])
+                    (get-in rom [:prg-banks 1]))]
+    {:read-fn mapper0-read8
+     :write-fn mapper0-write8
+     :mem (vec (repeat 0x800 0x00)) ; 2k RAM
+     :8000 (get-in rom [:prg-banks 0])
+     :c000 c000-bank
+     :rom rom}))
 
 (defn load-mapper
   [rom]
