@@ -61,9 +61,10 @@
         resolved-address (mem/resolve-address system instruction)]
     (if (:mutates-memory instruction)
        (opfn system (mem/resolve-address system instruction))
-       (let [extra-tick (cross-boundary-cycle system instruction resolved-address)]
-         (-> system
-             (opfn (mem/read-from-memory system instruction resolved-address))
+       (let [extra-tick (cross-boundary-cycle system instruction resolved-address)
+             [operand sys-after-read] (mem/read-from-memory system instruction resolved-address)]
+         (-> sys-after-read
+             (opfn operand)
              (update :cycle-count #(+ % extra-tick)))))))
 
 (defn read-operand
@@ -72,14 +73,14 @@
   [system addr size]
   (case size
     0 nil
-    1 (mapper/read8 system addr)
+    1 (mem/peek8 system addr)
     2 (mem/combine-bytes
-        (mapper/read8 system (inc addr))
-        (mapper/read8 system addr))))
+        (mem/peek8 system (inc addr))
+        (mem/peek8 system addr))))
 
 (defn get-current-instruction
   [system]
-  (let [opcode (mapper/read8 system (:pc system))
+  (let [opcode (mem/peek8 system (:pc system))
         instruction (get instruction-set opcode)
         _ (if (nil? instruction)
             (println (format "ERROR: opcode %02X does not correspond with a known instruction" opcode)))

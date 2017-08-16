@@ -5,6 +5,11 @@
           [nes.opcodes]
           [nes.memory]))
 
+(defn- read-byte
+  [system addr]
+  (let [[value sys-after-read] (read8 system addr)]
+    value))
+
 (fact "address calculates zeropage addresses"
   (-> (new-system)
       (resolve-address {:address-mode :zeropage
@@ -99,8 +104,8 @@
 (fact "write16 can write a 16-bit value to memory"
   (let [system (-> (new-system)
                    (write16 0x1000 0xABCD))]
-     (mapper/read8 system 0x1000) => 0xCD
-     (mapper/read8 system 0x1001) => 0xAB))
+     (read-byte system 0x1000) => 0xCD
+     (read-byte system 0x1001) => 0xAB))
 
 (fact "read16 reads a 16-bit value from a given address"
   (-> (new-system)
@@ -112,12 +117,12 @@
   (-> (new-system)
       (assoc :sp 0xFD)
       (push16 0x1234)
-      (read8 0x1FD)) => 0x12
+      (read-byte 0x1FD)) => 0x12
 
   (-> (new-system)
       (assoc :sp 0xFD)
       (push16 0x1234)
-      (read8 0x1FC)) => 0x34)
+      (read-byte 0x1FC)) => 0x34)
 
 (fact "push16 updates the stack pointer"
   (-> (new-system)
@@ -129,7 +134,7 @@
   (-> (new-system)
       (assoc :sp 0xFD)
       (push8 0x33)
-      (read8 0x1FD)) => 0x33)
+      (read-byte 0x1FD)) => 0x33)
 
 (fact "push8 updates the stack pointer by one"
   (-> (new-system)

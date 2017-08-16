@@ -1,9 +1,8 @@
 (ns nes.arithmetic-test
   (:require [midje.sweet :refer :all]
             [nes.arithmetic :refer :all]
-            [nes.memory :refer :all]
-            [nes.system :refer :all]
-            [nes.mapper :as mapper]))
+            [nes.memory :as mem]
+            [nes.system :refer :all]))
 
 (defn perform-sbc
   [acc m carry]
@@ -70,13 +69,13 @@
 
 (fact "ADC subtracts 1 from 0x05 located at address 0x20, setting value to 0x04"
   (-> (new-system)
-      (mapper/write8 0x20 0x05)
+      (mem/write8 0x20 0x05)
       (dec-opfn 0x20)
-      (mapper/read8 0x20)) => 0x04
+      (mem/peek8 0x20)) => 0x04
 
   (-> (new-system)
       (dec-opfn 0x20)
-      (mapper/read8 0x20)) => 0xFF)
+      (mem/peek8 0x20)) => 0xFF)
 
 (fact "change-by-one modifies a value by one and limits results to 0-255"
   (change-by-one dec 0x00) => 0xFF
@@ -87,15 +86,15 @@
 
 (fact "INC instruction increments memory by one"
   (-> (new-system)
-      (mapper/write8 0x10 0x42)
+      (mem/write8 0x10 0x42)
       (inc-opfn 0x10)
-      (mapper/read8 0x10)) => 0x43)
+      (mem/peek8 0x10)) => 0x43)
 
 (fact "INC instruction decrements memory by one"
   (-> (new-system)
-      (mapper/write8 0x10 0x42)
+      (mem/write8 0x10 0x42)
       (dec-opfn 0x10)
-      (mapper/read8 0x10)) => 0x41)
+      (mem/peek8 0x10)) => 0x41)
 
 (fact "SBC instruction should return A - M - Carry"
   (:acc (perform-sbc 0x05 0x01 true))  => 0x04

@@ -117,7 +117,7 @@
       (assoc :sign-flag true)
       (assoc :sp 0xFD)
       (brk-opfn nil)
-      (mem/read8 0x1FB)) => 0x91)
+      (mem/peek8 0x1FB)) => 0x91)
 
 (fact "BRK does not set the brk flag"
   (-> (new-system)

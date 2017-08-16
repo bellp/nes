@@ -17,13 +17,6 @@
       (bit-shift-left 8)
       (bit-or lsb)))
 
-(defn read-last-pushed-byte
-  [system]
-  (mapper/read8 system (-> (:sp system)
-                           (inc)
-                           (bit-and 0xFF)
-                           (bit-or 0x100))))
-
 (defn push8 [system value]
   (-> system
       (mapper/write8 (bit-or 0x100 (:sp system)) value)
@@ -41,8 +34,8 @@
 
 (defn read16
   [system addr]
-  (let [lsb (mapper/read8 system addr)
-        msb (mapper/read8 system (inc addr))]
+  (let [[lsb _] (mapper/read8 system addr)
+        [msb _] (mapper/read8 system (inc addr))]
     (combine-bytes msb lsb)))
 
 (defn write16 [system address value]
@@ -56,24 +49,36 @@
   "Reads an 8-bit value from a given address (or accumulator)"
   [system address]
   (case address
-    :accumulator (:acc system)
+    :accumulator [(:acc system) system]
     (mapper/read8 system address)))
+
+(defn peek8
+  [system address]
+  (let [[value _] (mapper/read8 system address)]
+    value))
 
 (defn write8 [system address value]
   (case address
     :accumulator (assoc system :acc (bit-and 0xFF value))
     (mapper/write8 system address (bit-and 0xFF value))))
 
+(defn read-last-pushed-byte
+  [system]
+  (peek8 system (-> (:sp system)
+                    (inc)
+                    (bit-and 0xFF)
+                    (bit-or 0x100))))
+
 (defn single-page-read16
   [system address]
-  (let [msb (mapper/read8 system (bit-and (inc address) 0xFF))
-        lsb (mapper/read8 system (bit-and address 0xFF))]
+  (let [[msb _] (mapper/read8 system (bit-and (inc address) 0xFF))
+        [lsb _] (mapper/read8 system (bit-and address 0xFF))]
     (combine-bytes msb lsb)))
 
 (defn indirect-address
   [system operand]
-  (let [msb (mapper/read8 system (bit-or (bit-and operand 0xFF00) (bit-and (inc operand) 0xFF)))
-        lsb (mapper/read8 system (bit-and operand 0xFFFF))]
+  (let [[msb _] (mapper/read8 system (bit-or (bit-and operand 0xFF00) (bit-and (inc operand) 0xFF)))
+        [lsb _] (mapper/read8 system (bit-and operand 0xFFFF))]
     (combine-bytes msb lsb)))
 
 (defn indirect-y
@@ -129,9 +134,9 @@
   [system instruction address]
   (let [mode (:address-mode instruction)]
     (case mode
-      :accumulator nil
-      :implied nil
-      :relative (:operand instruction)
-      :immediate (:operand instruction)
+      :accumulator [system nil]
+      :implied [nil system]
+      :relative [(:operand instruction) system]
+      :immediate [(:operand instruction) system]
       (mapper/read8 system address))))
 

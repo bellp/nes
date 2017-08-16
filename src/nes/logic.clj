@@ -26,42 +26,42 @@
   (bitop-opfn system m bit-xor))
 
 (defn asl-opfn [system addr]
-  (let [value (mem/read8 system addr)
+  (let [[value sys-after-read] (mem/read8 system addr)
         shifted (bit-and 0xFF (bit-shift-left value 1))]
-    (-> system
+    (-> sys-after-read
         (assoc :zero-flag (= shifted 0))
         (assoc :carry-flag (bit-test value 7))
         (assoc :sign-flag (bit-test shifted 7))
         (mem/write8 addr shifted))))
 
 (defn lsr-opfn [system addr]
-  (let [value (mem/read8 system addr)
+  (let [[value sys-after-read] (mem/read8 system addr)
         shifted (bit-and 0xFF (bit-shift-right value 1))]
-    (-> system
+    (-> sys-after-read
         (assoc :zero-flag (= shifted 0))
         (assoc :carry-flag (bit-test value 0))
         (assoc :sign-flag false)
         (mem/write8 addr shifted))))
 
 (defn rol-opfn [system addr]
-  (let [value (mem/read8 system addr)
+  (let [[value sys-after-read] (mem/read8 system addr)
         shifted (bit-and 0xFF (bit-shift-left value 1))
-        shifted-with-carry (if (:carry-flag system)
+        shifted-with-carry (if (:carry-flag sys-after-read)
                               (bit-or shifted 0x01)
                               shifted)]
-    (-> system
+    (-> sys-after-read
         (assoc :zero-flag (= shifted-with-carry 0))
         (assoc :carry-flag (bit-test value 7))
         (assoc :sign-flag (bit-test shifted-with-carry 7))
         (mem/write8 addr shifted-with-carry))))
 
 (defn ror-opfn [system addr]
-  (let [value (mem/read8 system addr)
+  (let [[value sys-after-read] (mem/read8 system addr)
         shifted (bit-and 0xFF (bit-shift-right value 1))
-        shifted-with-carry (if (:carry-flag system)
+        shifted-with-carry (if (:carry-flag sys-after-read)
                               (bit-or shifted 0x80)
                               shifted)]
-    (-> system
+    (-> sys-after-read
         (assoc :zero-flag (= shifted-with-carry 0))
         (assoc :carry-flag (bit-test value 0))
         (assoc :sign-flag (bit-test shifted-with-carry 7))
@@ -69,20 +69,20 @@
 
 (defn slo-opfn [system addr]
   (let [after-asl-sys (asl-opfn system addr)
-        m (mem/read8 after-asl-sys addr)]
-    (ora-opfn after-asl-sys m)))
+        [m sys-after-read] (mem/read8 after-asl-sys addr)]
+    (ora-opfn sys-after-read m)))
 
 (defn rla-opfn [system addr]
   (let [after-rol-sys (rol-opfn system addr)
-        m (mem/read8 after-rol-sys addr)]
-    (and-opfn after-rol-sys m)))
+        [m sys-after-read] (mem/read8 after-rol-sys addr)]
+    (and-opfn sys-after-read m)))
 
 (defn sre-opfn [system addr]
   (let [after-lsr-sys (lsr-opfn system addr)
-        m (mem/read8 after-lsr-sys addr)]
-    (eor-opfn after-lsr-sys m)))
+        [m sys-after-read] (mem/read8 after-lsr-sys addr)]
+    (eor-opfn sys-after-read m)))
 
 (defn rra-opfn [system addr]
   (let [after-ror-sys (ror-opfn system addr)
-        m (mem/read8 after-ror-sys addr)]
-    (math/adc-opfn after-ror-sys m)))
+        [m sys-after-read] (mem/read8 after-ror-sys addr)]
+    (math/adc-opfn sys-after-read m)))

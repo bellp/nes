@@ -50,8 +50,9 @@
 (defn change-memory-by-one
   "Used by increment/decrement functions to change values in memory"
   [system op addr]
-  (let [result (change-by-one op (mapper/read8 system addr))]
-    (-> system
+  (let [[value after-sys] (mapper/read8 system addr)
+        result (change-by-one op value)]
+    (-> after-sys
         (update-by-one-flags result)
         (mapper/write8 addr result))))
 
@@ -98,13 +99,13 @@
   (cmp-reg system (:y system) m))
 
 (defn dcp-opfn [system addr]
-  (let [before-m (mem/read8 system addr)
-        after-sys (dec-opfn system addr)
-        after-m (mem/read8 after-sys addr)]
-    (cmp-reg after-sys (:acc after-sys) after-m)))
+  (let [[before-m sys-after-first-read] (mem/read8 system addr)
+        after-dec (dec-opfn sys-after-first-read addr)
+        [after-m sys-after-2nd-read] (mem/read8 after-dec addr)]
+    (cmp-reg sys-after-2nd-read (:acc sys-after-2nd-read) after-m)))
 
 (defn ins-opfn [system addr]
   (let [inc-sys (inc-opfn system addr)
-        m (mem/read8 inc-sys addr)]
-    (sbc-opfn inc-sys m)))
+        [m sys-after] (mem/read8 inc-sys addr)]
+    (sbc-opfn sys-after m)))
 

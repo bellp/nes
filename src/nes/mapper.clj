@@ -1,6 +1,7 @@
 (ns nes.mapper
   (require [nes.rom :as rom]
-           [nes.debug :as debug]))
+           [nes.debug :as debug]
+           [nes.ppu :as ppu]))
 
 (defn test-write8
   [system addr value]
@@ -8,7 +9,7 @@
 
 (defn test-read8
   [system addr]
-  (get-in system [:mapper :mem addr]))
+  [(get-in system [:mapper :mem addr]) system])
 
 (defn test-mapper
   "This is a mapper intended only for testing/debugging of the CPU. It's just a flat 64k of RAM
@@ -40,9 +41,7 @@
 
 (defn read-mem8
   [system addr]
-  (if (< addr 0x2000)
-    (get-in system [:mapper :mem (bit-and addr 0x7FF)])
-    0x00))
+  [(get-in system [:mapper :mem (bit-and addr 0x7FF)]) system])
 
 ; No Mapper (iNES Mapper 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -55,10 +54,11 @@
 (defn mapper0-read8
   [system addr]
   (cond
-    (>= addr 0xC000) (get-in system [:mapper :c000 (bit-and addr 0x3FFF)])
-    (>= addr 0x8000) (get-in system [:mapper :8000 (bit-and addr 0x3FFF)])
-    (< addr 0x2000) (get-in system [:mapper :mem (bit-and addr 0x7FF)])
-    :else 0x00))
+    (< addr 0x2000) (read-mem8 system addr) ; RAM
+    (< addr 0x4000) (ppu/read8 system addr)
+    (>= addr 0x8000) [(get-in system [:mapper :8000 (bit-and addr 0x3FFF)]) system]
+    (>= addr 0xC000) [(get-in system [:mapper :c000 (bit-and addr 0x3FFF)]) system]
+    :else (throw (Exception. (format "Address %04X not supported yet." addr)))))
 
 (defn mapper0
   "This is the simplest NES mapper... which is no mapper at all.

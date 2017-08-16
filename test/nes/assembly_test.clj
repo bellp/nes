@@ -156,5 +156,5 @@
   (let [system (-> (new-system)
                    (compile-statement "INX")
                    (compile-statement "INY"))]
-    (mapper/read8 system 0x00) => 0xE8
-    (mapper/read8 system 0x01) => 0xC8))
+    (peek8 system 0x00) => 0xE8
+    (peek8 system 0x01) => 0xC8))
