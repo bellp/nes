@@ -2,11 +2,11 @@
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :main nes.core
-  :profiles {:dev {:dependencies [[midje "1.8.3"]]} :midje {}}
+  :profiles {:dev {:dependencies [[midje "1.6.0" :exclusions [org.clojure/clojure]]]
+                   :plugins [[lein-midje "3.2.1"]]}}
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :jvm-opts ["-server"]
-
   :dependencies [[org.clojure/clojure "1.8.0"]]
   :debug-repl {:resource-paths ["/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/lib/tools.jar"]
                :repl-options {:nrepl-middleware [debug-middleware.core/debug-middleware]}

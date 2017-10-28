@@ -10,7 +10,4 @@
                 (rom/read-rom))
         system (sys/boot rom)]
     (sys/run system :forever)
-
-
-
     0))
